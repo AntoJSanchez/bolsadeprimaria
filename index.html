@@ -234,17 +234,19 @@
             }
 
             function calculateForecast(userPosition, augustVacancies, numProvinces) {
-                const BASE_TOTAL_CALLS = 5200; 
+                // The total number of calls is an estimate for a post-opposition year with the new union agreement.
+                const BASE_TOTAL_CALLS = 4500; 
                 const provinceMultipliers = { 1: 0.35, 2: 0.5, 3: 0.6, 4: 0.7, 5: 0.8, 6: 0.9, 7: 0.95, 8: 1.0 };
                 const provinceMultiplier = provinceMultipliers[numProvinces] || 1.0;
 
                 const effectiveUserPosition = userPosition - augustVacancies;
                 const totalInCourseCalls = (BASE_TOTAL_CALLS - augustVacancies) * provinceMultiplier;
 
-                // NEW DISTRIBUTION based on Maestros25 data pattern
+                // NEW DISTRIBUTION based on the 2022-2023 post-opposition year data provided by the user.
+                // This model gives a massive weight to September.
                 const monthlyDistribution = {
-                    'Septiembre': 0.40, 'Octubre': 0.15, 'Noviembre': 0.10, 'Diciembre': 0.05,
-                    'Enero': 0.10, 'Febrero': 0.08, 'Marzo': 0.07, 'Abril': 0.025, 'Mayo': 0.025, 'Junio': 0.00
+                    'Septiembre': 0.60, 'Octubre': 0.14, 'Noviembre': 0.08, 'Diciembre': 0.01,
+                    'Enero': 0.09, 'Febrero': 0.02, 'Marzo': 0.03, 'Abril': 0.01, 'Mayo': 0.02, 'Junio': 0.00
                 };
                 
                 const months = Object.keys(monthlyDistribution);
