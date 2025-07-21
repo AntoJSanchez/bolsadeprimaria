@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Previsión Interactiva Bolsa Primaria Andalucía 2025-2026</title>
+    <title>Previsión Interactiva y Guía Visual | Bolsa Primaria Andalucía 2025-2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,7 @@
         body {
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
+            background-color: #f8f9fa;
         }
         .chart-container {
             position: relative;
@@ -28,12 +29,12 @@
                 height: 400px;
             }
         }
-        .result-card {
+        .info-card, .result-card {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
             transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
-        .result-card.visible {
+        .info-card.visible, .result-card.visible {
             opacity: 1;
             transform: translateY(0);
         }
@@ -64,34 +65,54 @@
         .input-with-icon input {
             padding-left: 3.5rem;
         }
+        .gradient-text {
+            background-image: linear-gradient(to right, #4ECDC4, #45B7D1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="text-gray-800">
 
     <div class="container mx-auto p-4 md:p-8">
 
-        <header class="text-center mb-12">
+        <header class="text-center mb-16">
             <h1 class="text-4xl md:text-6xl font-black text-gray-900 leading-tight">Bolsa de Primaria Andalucía</h1>
-            <p class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#4ECDC4] to-[#45B7D1]">Calculadora de Previsión Personalizada 2025-2026</p>
-            <p class="mt-4 max-w-3xl mx-auto text-gray-600 text-lg">Introduce tus datos para obtener una estimación de cuándo podrías ser llamado/a durante el curso escolar 2025-2026.</p>
+            <p class="text-2xl md:text-3xl font-bold gradient-text">Guía y Calculadora de Previsión 2025-2026</p>
+            <p class="mt-4 max-w-3xl mx-auto text-gray-600 text-lg">Una herramienta interactiva para entender los factores clave y estimar cuándo podrías ser llamado/a.</p>
         </header>
 
-        <section id="calculator" class="bg-white rounded-2xl shadow-xl p-8 mb-12 max-w-6xl mx-auto border border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Introduce tus Datos</h2>
+        <section id="key-factors" class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-10">2 Factores que Decidirán tu Futuro</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="info-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
+                    <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">🤯</span>Efecto Oposición</h3>
+                    <p class="text-gray-600">El curso 25-26 viene tras oposiciones. Miles de aspirantes nuevos con buena nota entran a la bolsa, lo que **ralentiza mucho el avance inicial** en comparación con otros años.</p>
+                </div>
+                <div class="info-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500">
+                    <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">📈</span>Inicio del Acuerdo</h3>
+                    <p class="text-gray-600">Para el curso 25-26 se crearán **2.500 plazas extra a repartir entre todas las especialidades**. Esto dará un impulso positivo, aunque el gran impacto del acuerdo se notará a partir de 2026.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="bg-white rounded-2xl shadow-xl p-8 mb-16 max-w-6xl mx-auto border border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Calcula tu Previsión</h2>
             <form id="forecastForm" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 <div class="space-y-6">
                     <div>
                         <label for="userPosition" class="block text-lg font-semibold text-gray-700 mb-2">Tu posición en la bolsa</label>
                         <div class="input-with-icon">
                             <span class="icon">#️⃣</span>
-                            <input type="number" id="userPosition" name="userPosition" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent transition" placeholder="Ej: 4500" required>
+                            <input type="number" id="userPosition" name="userPosition" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent transition" placeholder="Ej: 3500" required>
                         </div>
                     </div>
                     <div>
                         <label for="augustVacancies" class="block text-lg font-semibold text-gray-700 mb-2">Nº de vacantes en agosto (SIPRI)</label>
                          <div class="input-with-icon">
                             <span class="icon">📄</span>
-                            <input type="number" id="augustVacancies" name="augustVacancies" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent transition" placeholder="Ej: 1200" required>
+                            <input type="number" id="augustVacancies" name="augustVacancies" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent transition" placeholder="Ej: 950" required>
                         </div>
                     </div>
                 </div>
@@ -117,29 +138,24 @@
         <section id="results" class="hidden max-w-6xl mx-auto">
             <div class="text-center mb-10">
                  <h2 class="text-3xl font-bold text-gray-900">Tu Previsión Personalizada</h2>
-                 <p class="text-gray-600 mt-2">Basada en los datos introducidos y el modelo predictivo para el curso 2025-26.</p>
+                 <p class="text-gray-600 mt-2">Basada en los datos históricos y los factores clave del curso 2025-26.</p>
             </div>
             
             <div class="grid grid-cols-1 gap-8">
-                
                 <div id="predictionCard" class="result-card bg-white rounded-2xl shadow-xl p-8 text-center flex flex-col justify-center items-center border-t-4 border-[#FF6B6B]">
                     <p class="text-xl font-semibold text-gray-600 flex items-center"><span class="text-3xl mr-3">🎯</span>Fecha estimada de tu llamamiento</p>
                     <p id="predictionText" class="text-5xl md:text-7xl font-black my-3" style="color:#FF6B6B;"></p>
                     <p id="predictionContext" class="mt-2 text-gray-500 max-w-2xl"></p>
                 </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div id="cumulativeChartCard" class="result-card lg:col-span-3 bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#45B7D1]">
                         <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center flex items-center justify-center"><span class="text-2xl mr-3">📈</span>Proyección de Avance Acumulado</h3>
-                        <p class="text-center text-gray-600 mb-6 text-sm">Este gráfico muestra cómo se espera que avance la bolsa a lo largo del curso. La línea azul indica el avance estimado y la línea roja marca tu posición para que veas cuándo se cruzan.</p>
                         <div class="chart-container">
                             <canvas id="cumulativeForecastChart"></canvas>
                         </div>
                     </div>
-
                     <div id="monthlyChartCard" class="result-card lg:col-span-2 bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#4ECDC4]">
                         <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center flex items-center justify-center"><span class="text-2xl mr-3">📊</span>Ritmo Mensual</h3>
-                        <p class="text-center text-gray-600 mb-6 text-sm">Aquí se ve el número estimado de llamamientos que se producirán cada mes. Observa el gran pico de Septiembre.</p>
                         <div class="chart-container">
                             <canvas id="monthlyCallsChart"></canvas>
                         </div>
@@ -149,8 +165,7 @@
         </section>
 
         <footer class="text-center mt-16 py-6 border-t border-gray-200">
-            <p class="text-gray-600">Esta herramienta ofrece una estimación basada en un modelo predictivo y datos históricos. No garantiza resultados y debe usarse como una guía orientativa.</p>
-            <p class="text-sm text-gray-500 mt-2">Canvas Infographics &copy; 2025</p>
+            <p class="text-gray-700 font-semibold">Elaborado por foro.escuelaenlared.com</p>
         </footer>
     </div>
 
@@ -160,18 +175,23 @@
             const resultsSection = document.getElementById('results');
             const predictionText = document.getElementById('predictionText');
             const predictionContext = document.getElementById('predictionContext');
-            const resultCards = document.querySelectorAll('.result-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.info-card').forEach(card => observer.observe(card));
 
             let cumulativeChart = null;
             let monthlyChart = null;
 
             const energeticPlayful = {
-                red: '#FF6B6B',
-                teal: '#4ECDC4',
-                blue: '#45B7D1',
-                yellow: '#F7B801',
-                orange: '#F15946',
-                gray: '#6c757d'
+                red: '#FF6B6B', teal: '#4ECDC4', blue: '#45B7D1',
+                yellow: '#F7B801', orange: '#F15946', gray: '#6c757d'
             };
 
             const tooltipTitleCallback = (tooltipItems) => {
@@ -181,14 +201,12 @@
             };
 
             const defaultChartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'top', labels: { font: { family: 'Inter' } } },
                     tooltip: { 
                         callbacks: { title: tooltipTitleCallback },
-                        titleFont: { family: 'Inter' },
-                        bodyFont: { family: 'Inter' }
+                        titleFont: { family: 'Inter' }, bodyFont: { family: 'Inter' }
                     }
                 },
                 scales: {
@@ -210,16 +228,15 @@
 
                 if (userPosition <= augustVacancies) {
                     displayImmediateResult(userPosition);
-                    return;
+                } else {
+                    const forecast = calculateForecast(userPosition, augustVacancies, selectedProvinces);
+                    displayResults(forecast, userPosition, augustVacancies);
                 }
-
-                const forecast = calculateForecast(userPosition, augustVacancies, selectedProvinces);
-                displayResults(forecast, userPosition, augustVacancies);
             });
 
             function displayImmediateResult(position) {
                 resultsSection.classList.remove('hidden');
-                document.querySelectorAll('#results .grid > div').forEach(el => el.classList.remove('visible'));
+                document.querySelectorAll('#results .result-card').forEach(el => el.classList.remove('visible'));
                 
                 const predictionCard = document.getElementById('predictionCard');
                 predictionCard.classList.add('visible');
@@ -228,22 +245,22 @@
                 predictionText.textContent = '¡Enhorabuena!';
                 predictionContext.textContent = `Con la posición ${position}, tienes una alta probabilidad de obtener una de las vacantes iniciales de agosto. Empezarías a trabajar el 1 de septiembre.`;
                 
-                setTimeout(() => {
-                    resultsSection.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                setTimeout(() => resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
             }
 
             function calculateForecast(userPosition, augustVacancies, numProvinces) {
-                // The total number of calls is an estimate for a post-opposition year with the new union agreement.
-                const BASE_TOTAL_CALLS = 4500; 
+                // Calculation Engine Updated:
+                // Baseline from the last post-opposition year (2022-23) is ~3600 calls.
+                // We add an estimate of ~600 new positions for Primary from the union agreement.
+                // New Base Total: 3600 + 600 = 4200.
+                const BASE_TOTAL_CALLS = 4200; 
                 const provinceMultipliers = { 1: 0.35, 2: 0.5, 3: 0.6, 4: 0.7, 5: 0.8, 6: 0.9, 7: 0.95, 8: 1.0 };
                 const provinceMultiplier = provinceMultipliers[numProvinces] || 1.0;
 
                 const effectiveUserPosition = userPosition - augustVacancies;
                 const totalInCourseCalls = (BASE_TOTAL_CALLS - augustVacancies) * provinceMultiplier;
 
-                // NEW DISTRIBUTION based on the 2022-2023 post-opposition year data provided by the user.
-                // This model gives a massive weight to September.
+                // Distribution based on the 2022-2023 post-opposition year data provided by the user.
                 const monthlyDistribution = {
                     'Septiembre': 0.60, 'Octubre': 0.14, 'Noviembre': 0.08, 'Diciembre': 0.01,
                     'Enero': 0.09, 'Febrero': 0.02, 'Marzo': 0.03, 'Abril': 0.01, 'Mayo': 0.02, 'Junio': 0.00
@@ -272,11 +289,7 @@
                 }
 
                 return {
-                    prediction,
-                    monthlyCalls,
-                    cumulativeData,
-                    months,
-                    effectiveUserPosition,
+                    prediction, monthlyCalls, cumulativeData, months,
                     totalProjectedCalls: cumulativeCalls + augustVacancies
                 };
             }
@@ -285,8 +298,9 @@
                 resultsSection.classList.remove('hidden');
                 document.getElementById('cumulativeChartCard').parentElement.parentElement.classList.remove('hidden');
 
-                document.querySelectorAll('#results .grid > div, #results .grid .result-card').forEach((card, index) => {
-                    setTimeout(() => card.classList.add('visible'), index * 150);
+                document.querySelectorAll('#results .result-card').forEach((card) => {
+                    card.classList.remove('visible');
+                    observer.observe(card);
                 });
 
                 if (forecast.prediction.found) {
@@ -307,21 +321,16 @@
                             data: forecast.cumulativeData.map(d => d + augustVacancies),
                             borderColor: energeticPlayful.blue,
                             backgroundColor: 'rgba(69, 183, 209, 0.2)',
-                            fill: true,
-                            tension: 0.2,
-                            pointBackgroundColor: energeticPlayful.blue,
-                            pointRadius: 4
+                            fill: true, tension: 0.2,
+                            pointBackgroundColor: energeticPlayful.blue, pointRadius: 4
                         }, {
                             label: 'Tu Posición',
                             data: Array(forecast.months.length).fill(userPosition),
                             borderColor: energeticPlayful.red,
-                            borderDash: [5, 5],
-                            fill: false,
-                            pointRadius: 0
+                            borderDash: [5, 5], fill: false, pointRadius: 0
                         }]
                     },
-                    options: {
-                        ...defaultChartOptions,
+                    options: { ...defaultChartOptions,
                         scales: {
                              y: { ...defaultChartOptions.scales.y, title: { display: true, text: 'Posición en la bolsa', font: { family: 'Inter', size: 14 } } }
                         }
@@ -338,21 +347,17 @@
                             data: forecast.monthlyCalls,
                             backgroundColor: energeticPlayful.teal,
                             borderColor: energeticPlayful.teal,
-                            borderRadius: 4,
-                            borderWidth: 1
+                            borderRadius: 4, borderWidth: 1
                         }]
                     },
-                    options: {
-                        ...defaultChartOptions,
+                    options: { ...defaultChartOptions,
                         scales: {
                              y: { ...defaultChartOptions.scales.y, title: { display: true, text: 'Nº de Llamamientos', font: { family: 'Inter', size: 14 } } }
                         }
                     }
                 });
                 
-                setTimeout(() => {
-                    resultsSection.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
+                setTimeout(() => resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
             }
         });
     </script>
