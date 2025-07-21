@@ -139,7 +139,7 @@
 
                     <div id="monthlyChartCard" class="result-card lg:col-span-2 bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#4ECDC4]">
                         <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center flex items-center justify-center"><span class="text-2xl mr-3">📊</span>Ritmo Mensual</h3>
-                        <p class="text-center text-gray-600 mb-6 text-sm">Aquí se ve el número estimado de llamamientos que se producirán cada mes. Observa los picos en noviembre y febrero-marzo.</p>
+                        <p class="text-center text-gray-600 mb-6 text-sm">Aquí se ve el número estimado de llamamientos que se producirán cada mes. Observa el gran pico de Septiembre.</p>
                         <div class="chart-container">
                             <canvas id="monthlyCallsChart"></canvas>
                         </div>
@@ -241,9 +241,10 @@
                 const effectiveUserPosition = userPosition - augustVacancies;
                 const totalInCourseCalls = (BASE_TOTAL_CALLS - augustVacancies) * provinceMultiplier;
 
+                // NEW DISTRIBUTION based on Maestros25 data pattern
                 const monthlyDistribution = {
-                    'Septiembre': 0.10, 'Octubre': 0.15, 'Noviembre': 0.20, 'Diciembre': 0.10,
-                    'Enero': 0.05, 'Febrero': 0.15, 'Marzo': 0.15, 'Abril': 0.05, 'Mayo': 0.05, 'Junio': 0.00
+                    'Septiembre': 0.40, 'Octubre': 0.15, 'Noviembre': 0.10, 'Diciembre': 0.05,
+                    'Enero': 0.10, 'Febrero': 0.08, 'Marzo': 0.07, 'Abril': 0.025, 'Mayo': 0.025, 'Junio': 0.00
                 };
                 
                 const months = Object.keys(monthlyDistribution);
