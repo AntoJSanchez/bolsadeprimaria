@@ -3,287 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis y Proyección de la Bolsa de Maestros de Primaria en Andalucía</title>
+    <title>Previsión Interactiva Bolsa Primaria Andalucía 2025-2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
         }
         .chart-container {
             position: relative;
-            margin: auto;
-            height: 40vh;
             width: 100%;
             max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
             max-height: 450px;
         }
-        #predictionResult {
-            transition: all 0.3s ease-in-out;
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
         }
-        .province-checkbox:checked + label {
-            background-color: #0A9396;
+        .result-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .result-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .province-selector label {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+        .province-selector input:checked + label {
+            background-color: #4ECDC4;
             color: white;
-            border-color: #0A9396;
+            border-color: #4ECDC4;
+            transform: scale(1.05);
+            box-shadow: 0 4px 14px 0 rgba(78, 205, 196, 0.39);
+        }
+        .input-with-icon {
+            position: relative;
+        }
+        .input-with-icon .icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.25rem;
+        }
+        .input-with-icon input {
+            padding-left: 3.5rem;
         }
     </style>
 </head>
-<body class="bg-[#E9D8A6]">
+<body class="bg-gray-50 text-gray-800">
 
     <div class="container mx-auto p-4 md:p-8">
 
         <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-6xl font-black text-[#005F73] mb-2">Proyección de la Bolsa de Interinos (Primaria)</h1>
-            <h2 class="text-xl md:text-2xl font-bold text-[#0A9396]">Edición Especial: Impacto del Acuerdo de Mejora (Curso 2025/2026)</h2>
+            <h1 class="text-4xl md:text-6xl font-black text-gray-900 leading-tight">Bolsa de Primaria Andalucía</h1>
+            <p class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#4ECDC4] to-[#45B7D1]">Calculadora de Previsión Personalizada 2025-2026</p>
+            <p class="mt-4 max-w-3xl mx-auto text-gray-600 text-lg">Introduce tus datos para obtener una estimación de cuándo podrías ser llamado/a durante el curso escolar 2025-2026.</p>
         </header>
 
-        <main class="space-y-12">
-            
-            <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 text-center">
-                <h3 class="text-2xl font-bold text-[#005F73] mb-4">Simulador de Previsión Personalizada</h3>
-                <p class="text-lg text-gray-700 max-w-4xl mx-auto mb-6">Esta herramienta te permite crear una proyección a medida. Introduce el número de vacantes iniciales que estimes y selecciona las provincias que has solicitado para ver cómo cambia el pronóstico.</p>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div class="bg-[#E9D8A6] rounded-lg p-6">
-                        <h4 class="text-xl font-bold text-[#005F73] mb-3">Paso 1: Define el Punto de Partida</h4>
-                         <div class="my-3">
-                            <label for="startPointInput" class="block text-sm font-medium text-gray-700 mb-1">Nº de Vacantes Iniciales (Agosto)</label>
-                            <input type="number" id="startPointInput" value="800" class="w-full text-center text-3xl font-bold p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A9396]">
+        <section id="calculator" class="bg-white rounded-2xl shadow-xl p-8 mb-12 max-w-6xl mx-auto border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Introduce tus Datos</h2>
+            <form id="forecastForm" class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <div class="space-y-6">
+                    <div>
+                        <label for="userPosition" class="block text-lg font-semibold text-gray-700 mb-2">Tu posición en la bolsa</label>
+                        <div class="input-with-icon">
+                            <span class="icon">#️⃣</span>
+                            <input type="number" id="userPosition" name="userPosition" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent transition" placeholder="Ej: 4500" required>
                         </div>
                     </div>
-                    <div class="bg-[#E9D8A6] rounded-lg p-6">
-                        <h4 class="text-xl font-bold text-[#005F73] mb-3">Paso 2: Selecciona tus Provincias</h4>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-                            <div><input type="checkbox" id="pr-al" class="province-checkbox hidden" value="1.3"><label for="pr-al" class="block text-center p-2 border rounded-md cursor-pointer">Almería</label></div>
-                            <div><input type="checkbox" id="pr-ca" class="province-checkbox hidden" value="1.0"><label for="pr-ca" class="block text-center p-2 border rounded-md cursor-pointer">Cádiz</label></div>
-                            <div><input type="checkbox" id="pr-co" class="province-checkbox hidden" value="1.0"><label for="pr-co" class="block text-center p-2 border rounded-md cursor-pointer">Córdoba</label></div>
-                            <div><input type="checkbox" id="pr-gr" class="province-checkbox hidden" value="0.9"><label for="pr-gr" class="block text-center p-2 border rounded-md cursor-pointer">Granada</label></div>
-                            <div><input type="checkbox" id="pr-hu" class="province-checkbox hidden" value="1.4"><label for="pr-hu" class="block text-center p-2 border rounded-md cursor-pointer">Huelva</label></div>
-                            <div><input type="checkbox" id="pr-ja" class="province-checkbox hidden" value="1.5"><label for="pr-ja" class="block text-center p-2 border rounded-md cursor-pointer">Jaén</label></div>
-                            <div><input type="checkbox" id="pr-ma" class="province-checkbox hidden" value="0.8"><label for="pr-ma" class="block text-center p-2 border rounded-md cursor-pointer">Málaga</label></div>
-                            <div><input type="checkbox" id="pr-se" class="province-checkbox hidden" value="0.7"><label for="pr-se" class="block text-center p-2 border rounded-md cursor-pointer">Sevilla</label></div>
+                    <div>
+                        <label for="augustVacancies" class="block text-lg font-semibold text-gray-700 mb-2">Nº de vacantes en agosto (SIPRI)</label>
+                         <div class="input-with-icon">
+                            <span class="icon">📄</span>
+                            <input type="number" id="augustVacancies" name="augustVacancies" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-[#4ECDC4] focus:border-transparent transition" placeholder="Ej: 1200" required>
                         </div>
                     </div>
                 </div>
-                 <button id="updateProjectionButton" class="mt-6 w-full max-w-md mx-auto bg-[#005F73] text-white font-bold px-6 py-3 rounded-lg hover:bg-[#004452] transition-colors text-lg">Actualizar Proyección</button>
-            </section>
-
-            <section class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <h3 class="text-2xl font-bold text-[#005F73] mb-2 text-center">Proyección de Avance Acumulado en la Bolsa</h3>
-                <p class="text-center text-gray-600 mb-6 max-w-3xl mx-auto">Esta gráfica muestra hasta qué posición estimada de la bolsa se llegará mes a mes según tu selección.</p>
-                <div class="chart-container">
-                    <canvas id="projectionChart"></canvas>
-                </div>
-            </section>
-            
-            <section class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <h3 class="text-2xl font-bold text-[#005F73] mb-2 text-center">Ritmo de Llamamientos Mensuales (Estimación)</h3>
-                <p class="text-center text-gray-600 mb-6 max-w-3xl mx-auto">Este gráfico refleja el volumen de llamamientos esperado según las provincias seleccionadas.</p>
-                <div class="chart-container">
-                    <canvas id="monthlyCallsChart"></canvas>
-                </div>
-            </section>
-            
-            <section class="bg-white rounded-xl shadow-lg p-6 md:p-8 text-center">
-                <h3 class="text-2xl font-bold text-[#005F73] mb-4">Calculadora de Previsión Personal</h3>
-                <p class="text-lg text-gray-700 max-w-2xl mx-auto mb-6">Introduce tu posición para obtener una estimación del mes en que podrías ser llamado, según el escenario configurado.</p>
-                <div class="max-w-md mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="number" id="positionInput" placeholder="Escribe tu número de puesto aquí..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A9396]">
-                        <button id="predictButton" class="w-full sm:w-auto bg-[#CA6702] text-white font-bold px-6 py-3 rounded-lg hover:bg-[#a15201] transition-colors">Calcular Previsión</button>
-                    </div>
-                    <div id="predictionResult" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[50px]">
-                        <!-- El resultado aparecerá aquí -->
+                <div>
+                    <label class="block text-lg font-semibold text-gray-700 mb-3">Provincias solicitadas</label>
+                    <div class="province-selector grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        <input type="checkbox" id="p-al" value="Almería" class="hidden"><label for="p-al" class="block text-center rounded-lg p-3 font-semibold">Almería</label>
+                        <input type="checkbox" id="p-ca" value="Cádiz" class="hidden"><label for="p-ca" class="block text-center rounded-lg p-3 font-semibold">Cádiz</label>
+                        <input type="checkbox" id="p-co" value="Córdoba" class="hidden"><label for="p-co" class="block text-center rounded-lg p-3 font-semibold">Córdoba</label>
+                        <input type="checkbox" id="p-gr" value="Granada" class="hidden"><label for="p-gr" class="block text-center rounded-lg p-3 font-semibold">Granada</label>
+                        <input type="checkbox" id="p-hu" value="Huelva" class="hidden"><label for="p-hu" class="block text-center rounded-lg p-3 font-semibold">Huelva</label>
+                        <input type="checkbox" id="p-ja" value="Jaén" class="hidden"><label for="p-ja" class="block text-center rounded-lg p-3 font-semibold">Jaén</label>
+                        <input type="checkbox" id="p-ma" value="Málaga" class="hidden"><label for="p-ma" class="block text-center rounded-lg p-3 font-semibold">Málaga</label>
+                        <input type="checkbox" id="p-se" value="Sevilla" class="hidden"><label for="p-se" class="block text-center rounded-lg p-3 font-semibold">Sevilla</label>
                     </div>
                 </div>
-            </section>
+                <div class="md:col-span-2 text-center mt-4">
+                    <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-[#FF6B6B] to-[#f15946] text-white font-bold text-xl py-4 px-12 rounded-lg hover:scale-105 transform transition-transform duration-300 shadow-lg hover:shadow-xl">Generar Previsión</button>
+                </div>
+            </form>
+        </section>
 
-        </main>
+        <section id="results" class="hidden max-w-6xl mx-auto">
+            <div class="text-center mb-10">
+                 <h2 class="text-3xl font-bold text-gray-900">Tu Previsión Personalizada</h2>
+                 <p class="text-gray-600 mt-2">Basada en los datos introducidos y el modelo predictivo para el curso 2025-26.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-8">
+                
+                <div id="predictionCard" class="result-card bg-white rounded-2xl shadow-xl p-8 text-center flex flex-col justify-center items-center border-t-4 border-[#FF6B6B]">
+                    <p class="text-xl font-semibold text-gray-600 flex items-center"><span class="text-3xl mr-3">🎯</span>Fecha estimada de tu llamamiento</p>
+                    <p id="predictionText" class="text-5xl md:text-7xl font-black my-3" style="color:#FF6B6B;"></p>
+                    <p id="predictionContext" class="mt-2 text-gray-500 max-w-2xl"></p>
+                </div>
 
-        <footer class="text-center mt-12 pt-8 border-t border-[#94D2BD]">
-            <p class="text-sm text-[#005F73]">Infografía generada por Canvas Infographics. Este es un modelo predictivo basado en datos simulados y patrones históricos típicos, no una garantía de futuro. La realidad puede variar.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div id="cumulativeChartCard" class="result-card lg:col-span-3 bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#45B7D1]">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center flex items-center justify-center"><span class="text-2xl mr-3">📈</span>Proyección de Avance Acumulado</h3>
+                        <p class="text-center text-gray-600 mb-6 text-sm">Este gráfico muestra cómo se espera que avance la bolsa a lo largo del curso. La línea azul indica el avance estimado y la línea roja marca tu posición para que veas cuándo se cruzan.</p>
+                        <div class="chart-container">
+                            <canvas id="cumulativeForecastChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div id="monthlyChartCard" class="result-card lg:col-span-2 bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#4ECDC4]">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center flex items-center justify-center"><span class="text-2xl mr-3">📊</span>Ritmo Mensual</h3>
+                        <p class="text-center text-gray-600 mb-6 text-sm">Aquí se ve el número estimado de llamamientos que se producirán cada mes. Observa los picos en noviembre y febrero-marzo.</p>
+                        <div class="chart-container">
+                            <canvas id="monthlyCallsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center mt-16 py-6 border-t border-gray-200">
+            <p class="text-gray-600">Esta herramienta ofrece una estimación basada en un modelo predictivo y datos históricos. No garantiza resultados y debe usarse como una guía orientativa.</p>
+            <p class="text-sm text-gray-500 mt-2">Canvas Infographics &copy; 2025</p>
         </footer>
     </div>
 
     <script>
-        const commonTooltipCallback = {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        title: function(tooltipItems) {
-                            const item = tooltipItems[0];
-                            let label = item.chart.data.labels[item.dataIndex];
-                            if (Array.isArray(label)) {
-                                return label.join(' ');
-                            } else {
-                                return label;
-                            }
-                        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('forecastForm');
+            const resultsSection = document.getElementById('results');
+            const predictionText = document.getElementById('predictionText');
+            const predictionContext = document.getElementById('predictionContext');
+            const resultCards = document.querySelectorAll('.result-card');
+
+            let cumulativeChart = null;
+            let monthlyChart = null;
+
+            const energeticPlayful = {
+                red: '#FF6B6B',
+                teal: '#4ECDC4',
+                blue: '#45B7D1',
+                yellow: '#F7B801',
+                orange: '#F15946',
+                gray: '#6c757d'
+            };
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                return Array.isArray(label) ? label.join(' ') : label;
+            };
+
+            const defaultChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Inter' } } },
+                    tooltip: { 
+                        callbacks: { title: tooltipTitleCallback },
+                        titleFont: { family: 'Inter' },
+                        bodyFont: { family: 'Inter' }
                     }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#333', font: { family: 'Inter' } }, grid: { color: '#e5e7eb' } },
+                    x: { ticks: { color: '#333', font: { family: 'Inter' } }, grid: { display: false } }
                 }
+            };
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const userPosition = parseInt(document.getElementById('userPosition').value);
+                const augustVacancies = parseInt(document.getElementById('augustVacancies').value);
+                const selectedProvinces = document.querySelectorAll('.province-selector input:checked').length;
+
+                if (isNaN(userPosition) || isNaN(augustVacancies) || selectedProvinces === 0) {
+                    alert('Por favor, completa todos los campos y selecciona al menos una provincia.');
+                    return;
+                }
+
+                if (userPosition <= augustVacancies) {
+                    displayImmediateResult(userPosition);
+                    return;
+                }
+
+                const forecast = calculateForecast(userPosition, augustVacancies, selectedProvinces);
+                displayResults(forecast, userPosition, augustVacancies);
+            });
+
+            function displayImmediateResult(position) {
+                resultsSection.classList.remove('hidden');
+                document.querySelectorAll('#results .grid > div').forEach(el => el.classList.remove('visible'));
+                
+                const predictionCard = document.getElementById('predictionCard');
+                predictionCard.classList.add('visible');
+                document.getElementById('cumulativeChartCard').parentElement.parentElement.classList.add('hidden');
+
+                predictionText.textContent = '¡Enhorabuena!';
+                predictionContext.textContent = `Con la posición ${position}, tienes una alta probabilidad de obtener una de las vacantes iniciales de agosto. Empezarías a trabajar el 1 de septiembre.`;
+                
+                setTimeout(() => {
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
             }
-        };
 
-        let projectionChart, monthlyCallsChart;
+            function calculateForecast(userPosition, augustVacancies, numProvinces) {
+                const BASE_TOTAL_CALLS = 5200; 
+                const provinceMultipliers = { 1: 0.35, 2: 0.5, 3: 0.6, 4: 0.7, 5: 0.8, 6: 0.9, 7: 0.95, 8: 1.0 };
+                const provinceMultiplier = provinceMultipliers[numProvinces] || 1.0;
 
-        const baseMonthlyCalls = [220, 330, 660, 715, 1100, 825, 660, 440, 385, 165];
-        const monthLabels = ['Septiembre', 'Octubre', 'Noviembre', 'Diciembre', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
-        
-        const projectionData = {
-            labels: ['Agosto', ...monthLabels],
-            positions: []
-        };
-        
-        const provinceFactors = {
-            "pr-al": 1.3, "pr-ca": 1.0, "pr-co": 1.0, "pr-gr": 0.9,
-            "pr-hu": 1.4, "pr-ja": 1.5, "pr-ma": 0.8, "pr-se": 0.7
-        };
+                const effectiveUserPosition = userPosition - augustVacancies;
+                const totalInCourseCalls = (BASE_TOTAL_CALLS - augustVacancies) * provinceMultiplier;
 
-        function updateCharts() {
-            const startPoint = parseInt(document.getElementById('startPointInput').value) || 0;
-            
-            const selectedProvinces = document.querySelectorAll('.province-checkbox:checked');
-            let demandMultiplier = 0;
-            if (selectedProvinces.length > 0) {
-                selectedProvinces.forEach(p => {
-                    demandMultiplier += parseFloat(p.value);
+                const monthlyDistribution = {
+                    'Septiembre': 0.10, 'Octubre': 0.15, 'Noviembre': 0.20, 'Diciembre': 0.10,
+                    'Enero': 0.05, 'Febrero': 0.15, 'Marzo': 0.15, 'Abril': 0.05, 'Mayo': 0.05, 'Junio': 0.00
+                };
+                
+                const months = Object.keys(monthlyDistribution);
+                const monthlyCalls = months.map(month => Math.round(totalInCourseCalls * monthlyDistribution[month]));
+                
+                let cumulativeCalls = 0;
+                const cumulativeData = [];
+                let prediction = { month: 'No previsto', week: 0, found: false };
+
+                for (let i = 0; i < months.length; i++) {
+                    const month = months[i];
+                    const callsThisMonth = monthlyCalls[i];
+                    if (!prediction.found && (cumulativeCalls + callsThisMonth) >= effectiveUserPosition) {
+                        const neededInMonth = effectiveUserPosition - cumulativeCalls;
+                        let week = 4;
+                        if (callsThisMonth > 0) {
+                            week = Math.ceil((neededInMonth / callsThisMonth) * 4);
+                        }
+                        prediction = { month, week: Math.max(1, week), found: true };
+                    }
+                    cumulativeCalls += callsThisMonth;
+                    cumulativeData.push(cumulativeCalls);
+                }
+
+                return {
+                    prediction,
+                    monthlyCalls,
+                    cumulativeData,
+                    months,
+                    effectiveUserPosition,
+                    totalProjectedCalls: cumulativeCalls + augustVacancies
+                };
+            }
+
+            function displayResults(forecast, userPosition, augustVacancies) {
+                resultsSection.classList.remove('hidden');
+                document.getElementById('cumulativeChartCard').parentElement.parentElement.classList.remove('hidden');
+
+                document.querySelectorAll('#results .grid > div, #results .grid .result-card').forEach((card, index) => {
+                    setTimeout(() => card.classList.add('visible'), index * 150);
                 });
-                demandMultiplier = demandMultiplier / selectedProvinces.length;
-            } else {
-                demandMultiplier = 0;
-            }
 
-            const dynamicMonthlyCalls = baseMonthlyCalls.map(calls => Math.round(calls * demandMultiplier));
+                if (forecast.prediction.found) {
+                    predictionText.textContent = `${forecast.prediction.month}, Semana ${forecast.prediction.week}`;
+                    predictionContext.textContent = `Se estima que la bolsa avanzará lo suficiente para alcanzar tu posición (${userPosition}) durante esta fecha.`;
+                } else {
+                    predictionText.textContent = 'Llamamiento No Previsto';
+                    predictionContext.textContent = `Según el modelo, con los datos introducidos, es poco probable que seas llamado/a este curso. La previsión de avance total es de ${Math.round(forecast.totalProjectedCalls)} puestos.`;
+                }
 
-            projectionData.positions = [startPoint];
-            let cumulativeCalls = 0;
-            for (const call of dynamicMonthlyCalls) {
-                cumulativeCalls += call;
-                projectionData.positions.push(startPoint + cumulativeCalls);
-            }
-
-            if (projectionChart) {
-                projectionChart.data.datasets[0].data = projectionData.positions;
-                projectionChart.update();
-            } else {
-                const ctxProjection = document.getElementById('projectionChart').getContext('2d');
-                projectionChart = new Chart(ctxProjection, {
+                if (cumulativeChart) cumulativeChart.destroy();
+                cumulativeChart = new Chart(document.getElementById('cumulativeForecastChart').getContext('2d'), {
                     type: 'line',
                     data: {
-                        labels: projectionData.labels,
+                        labels: forecast.months,
                         datasets: [{
-                            label: 'Posición Estimada Alcanzada en la Bolsa',
-                            data: projectionData.positions,
-                            backgroundColor: 'rgba(148, 210, 189, 0.2)',
-                            borderColor: '#0A9396',
-                            pointBackgroundColor: '#0A9396',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: '#0A9396',
-                            tension: 0.1,
+                            label: 'Avance Acumulado Estimado',
+                            data: forecast.cumulativeData.map(d => d + augustVacancies),
+                            borderColor: energeticPlayful.blue,
+                            backgroundColor: 'rgba(69, 183, 209, 0.2)',
                             fill: true,
+                            tension: 0.2,
+                            pointBackgroundColor: energeticPlayful.blue,
+                            pointRadius: 4
+                        }, {
+                            label: 'Tu Posición',
+                            data: Array(forecast.months.length).fill(userPosition),
+                            borderColor: energeticPlayful.red,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
                         }]
                     },
                     options: {
-                        ...commonTooltipCallback,
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: { y: { title: { display: true, text: 'Posición en la Bolsa' } }, x: { title: { display: true, text: 'Mes del Curso Escolar' } } }
+                        ...defaultChartOptions,
+                        scales: {
+                             y: { ...defaultChartOptions.scales.y, title: { display: true, text: 'Posición en la bolsa', font: { family: 'Inter', size: 14 } } }
+                        }
                     }
                 });
-            }
 
-            if (monthlyCallsChart) {
-                monthlyCallsChart.data.datasets[0].data = dynamicMonthlyCalls;
-                monthlyCallsChart.update();
-            } else {
-                const ctxMonthly = document.getElementById('monthlyCallsChart').getContext('2d');
-                monthlyCallsChart = new Chart(ctxMonthly, {
+                if (monthlyChart) monthlyChart.destroy();
+                monthlyChart = new Chart(document.getElementById('monthlyCallsChart').getContext('2d'), {
                     type: 'bar',
                     data: {
-                        labels: monthLabels,
+                        labels: forecast.months,
                         datasets: [{
-                            label: 'Nuevos Llamamientos por Mes',
-                            data: dynamicMonthlyCalls,
-                            backgroundColor: '#EE9B00',
-                            borderColor: '#CA6702',
+                            label: 'Nº de Llamamientos por Mes',
+                            data: forecast.monthlyCalls,
+                            backgroundColor: energeticPlayful.teal,
+                            borderColor: energeticPlayful.teal,
+                            borderRadius: 4,
                             borderWidth: 1
                         }]
                     },
                     options: {
-                        ...commonTooltipCallback,
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true, title: { display: true, text: 'Número de Llamamientos' } }, x: { title: { display: true, text: 'Mes del Curso Escolar' } } }
+                        ...defaultChartOptions,
+                        scales: {
+                             y: { ...defaultChartOptions.scales.y, title: { display: true, text: 'Nº de Llamamientos', font: { family: 'Inter', size: 14 } } }
+                        }
                     }
                 });
+                
+                setTimeout(() => {
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
             }
-            
-            document.getElementById('predictionResult').innerHTML = '';
-        }
-
-        function predictMonth() {
-            const resultDiv = document.getElementById('predictionResult');
-            const positionInput = document.getElementById('positionInput');
-            const startPoint = parseInt(document.getElementById('startPointInput').value) || 0;
-            const position = parseInt(positionInput.value);
-
-            resultDiv.innerHTML = ''; 
-
-            if (isNaN(position) || position <= 0) {
-                resultDiv.innerHTML = `<p class="text-red-600 font-bold">Por favor, introduce un número de puesto válido.</p>`;
-                return;
-            }
-            
-            if (document.querySelectorAll('.province-checkbox:checked').length === 0) {
-                 resultDiv.innerHTML = `<p class="text-red-600 font-bold">Debes seleccionar al menos una provincia para calcular la previsión.</p>`;
-                return;
-            }
-
-            if (position <= startPoint) {
-                resultDiv.innerHTML = `<p class="text-green-600 font-bold text-xl">¡Enhorabuena!</p><p class="mt-2 text-gray-800">Con el puesto ${position}, obtendrías una de las vacantes iniciales de agosto.</p>`;
-                return;
-            }
-
-            const predictionMonths = {
-                labels: monthLabels,
-                positions: projectionData.positions.slice(1)
-            };
-
-            for (let i = 0; i < predictionMonths.positions.length; i++) {
-                if (position <= predictionMonths.positions[i]) {
-                    const month = predictionMonths.labels[i];
-                    const year = (['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'].includes(month)) ? '2026' : '2025';
-                    resultDiv.innerHTML = `
-                        <p class="text-lg text-gray-700">Para un aspirante en la posición <span class="font-bold text-[#005F73]">${position}</span>, la estimación es:</p>
-                        <p class="text-3xl font-black text-[#CA6702] mt-2">Ser llamado/a durante ${month} de ${year}</p>
-                        <p class="mt-4 text-sm text-gray-500">Esta es una proyección basada en el escenario y provincias seleccionadas. La fecha exacta puede variar.</p>
-                    `;
-                    return;
-                }
-            }
-            
-            const lastPosition = predictionMonths.positions[predictionMonths.positions.length - 1];
-            resultDiv.innerHTML = `
-                <p class="text-lg text-orange-600 font-bold">Con el puesto ${position}, la llamada durante este curso es poco probable según la proyección actual (hasta el puesto ${lastPosition}).</p>
-                <p class="mt-2 text-sm text-gray-500">Prueba a añadir más provincias (especialmente Jaén, Huelva o Almería) para ver si tus opciones mejoran.</p>
-            `;
-        }
-        
-        window.onload = function() {
-            updateCharts();
-            
-            document.getElementById('updateProjectionButton').addEventListener('click', updateCharts);
-            document.getElementById('predictButton').addEventListener('click', predictMonth);
-            document.getElementById('positionInput').addEventListener('keydown', function(event) {
-                if (event.key === 'Enter') {
-                    predictMonth();
-                }
-            });
-        };
-
+        });
     </script>
 
 </body>
