@@ -80,22 +80,7 @@
         <header class="text-center mb-16">
             <h1 class="text-4xl md:text-6xl font-black text-gray-900 leading-tight">Bolsa de Primaria Andalucía</h1>
             <p class="text-2xl md:text-3xl font-bold gradient-text">Guía y Calculadora de Previsión 2025-2026</p>
-            <p class="mt-4 max-w-3xl mx-auto text-gray-600 text-lg">Una herramienta interactiva para entender los factores clave y estimar cuándo podrías ser llamado/a.</p>
         </header>
-
-        <section id="key-factors" class="mb-16">
-            <h2 class="text-3xl font-bold text-center mb-10">2 Factores que Decidirán tu Futuro</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <div class="info-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
-                    <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">🤯</span>Efecto Oposición (Agravado)</h3>
-                    <p class="text-gray-600">Tras las **1.500 plazas** de 2025 (más del doble que en 2022), se creará un "tapón" de aspirantes mucho mayor, lo que **ralentizará el avance de la bolsa más que nunca**.</p>
-                </div>
-                <div class="info-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500">
-                    <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">📈</span>Inicio del Acuerdo</h3>
-                    <p class="text-gray-600">Para el curso 25-26 se crearán **2.500 plazas extra a repartir entre todas las especialidades**. Esto dará un impulso positivo que compensará en parte la ralentización.</p>
-                </div>
-            </div>
-        </section>
 
         <section id="calculator" class="bg-white rounded-2xl shadow-xl p-8 mb-16 max-w-6xl mx-auto border border-gray-200">
             <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Calcula tu Previsión</h2>
@@ -147,7 +132,7 @@
                     <p id="predictionText" class="text-5xl md:text-7xl font-black my-3" style="color:#FF6B6B;"></p>
                     <p id="predictionContext" class="mt-2 text-gray-500 max-w-2xl"></p>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div id="cumulativeChartCard" class="result-card lg:col-span-3 bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#45B7D1]">
                         <h3 class="text-2xl font-bold text-gray-900 mb-4 text-center flex items-center justify-center"><span class="text-2xl mr-3">📈</span>Proyección de Avance Acumulado</h3>
                         <div class="chart-container">
@@ -175,6 +160,8 @@
             const resultsSection = document.getElementById('results');
             const predictionText = document.getElementById('predictionText');
             const predictionContext = document.getElementById('predictionContext');
+            const predictionCard = document.getElementById('predictionCard');
+            const chartsContainer = document.getElementById('chartsContainer');
             
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -201,17 +188,33 @@
             };
 
             const defaultChartOptions = {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'top', labels: { font: { family: 'Inter' } } },
-                    tooltip: { 
-                        callbacks: { title: tooltipTitleCallback },
-                        titleFont: { family: 'Inter' }, bodyFont: { family: 'Inter' }
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: 'Inter' }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback
+                        },
+                        titleFont: { family: 'Inter' },
+                        bodyFont: { family: 'Inter' }
                     }
                 },
                 scales: {
-                    y: { beginAtZero: true, ticks: { color: '#333', font: { family: 'Inter' } }, grid: { color: '#e5e7eb' } },
-                    x: { ticks: { color: '#333', font: { family: 'Inter' } }, grid: { display: false } }
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#333', font: { family: 'Inter' } },
+                        grid: { color: '#e5e7eb' }
+                    },
+                    x: {
+                        ticks: { color: '#333', font: { family: 'Inter' } },
+                        grid: { display: false }
+                    }
                 }
             };
 
@@ -220,9 +223,20 @@
                 const userPosition = parseInt(document.getElementById('userPosition').value);
                 const augustVacancies = parseInt(document.getElementById('augustVacancies').value);
                 const selectedProvinces = document.querySelectorAll('.province-selector input:checked').length;
+                
+                predictionText.style.color = '#FF6B6B';
 
                 if (isNaN(userPosition) || isNaN(augustVacancies) || selectedProvinces === 0) {
-                    alert('Por favor, completa todos los campos y selecciona al menos una provincia.');
+                    resultsSection.classList.remove('hidden');
+                    chartsContainer.classList.add('hidden');
+                    predictionCard.classList.remove('visible');
+                    setTimeout(() => {
+                        predictionCard.classList.add('visible');
+                        predictionText.style.color = '#e53e3e';
+                        predictionText.textContent = 'Datos Incompletos';
+                        predictionContext.textContent = 'Por favor, rellena tu posición, las vacantes de agosto y selecciona al menos una provincia para continuar.';
+                        resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
                     return;
                 }
 
@@ -236,24 +250,18 @@
 
             function displayImmediateResult(position) {
                 resultsSection.classList.remove('hidden');
-                document.querySelectorAll('#results .result-card').forEach(el => el.classList.remove('visible'));
-                
-                const predictionCard = document.getElementById('predictionCard');
-                predictionCard.classList.add('visible');
-                document.getElementById('cumulativeChartCard').parentElement.parentElement.classList.add('hidden');
+                chartsContainer.classList.add('hidden');
+                predictionCard.classList.remove('visible');
 
-                predictionText.textContent = '¡Enhorabuena!';
-                predictionContext.textContent = `Con la posición ${position}, tienes una alta probabilidad de obtener una de las vacantes iniciales de agosto. Empezarías a trabajar el 1 de septiembre.`;
-                
-                setTimeout(() => resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
+                setTimeout(() => {
+                    predictionCard.classList.add('visible');
+                    predictionText.textContent = '¡Enhorabuena!';
+                    predictionContext.textContent = `Con la posición ${position}, tienes una alta probabilidad de obtener una de las vacantes iniciales de agosto. Empezarías a trabajar el 1 de septiembre.`;
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
             }
 
             function calculateForecast(userPosition, augustVacancies, numProvinces) {
-                // Calculation Engine Updated to reflect the aggravated opposition effect.
-                // Baseline from 2022-23 (~3600) is reduced due to the larger opposition (~1500 vs ~800 places).
-                // New baseline is more conservative: ~3100.
-                // We add the estimated impact from the union agreement for Primary (~600).
-                // New Base Total: 3100 + 600 = 3700.
                 const BASE_TOTAL_CALLS = 3700; 
                 const provinceMultipliers = { 1: 0.35, 2: 0.5, 3: 0.6, 4: 0.7, 5: 0.8, 6: 0.9, 7: 0.95, 8: 1.0 };
                 const provinceMultiplier = provinceMultipliers[numProvinces] || 1.0;
@@ -261,7 +269,6 @@
                 const effectiveUserPosition = userPosition - augustVacancies;
                 const totalInCourseCalls = (BASE_TOTAL_CALLS - augustVacancies) * provinceMultiplier;
 
-                // Distribution based on the 2022-2023 post-opposition year data provided by the user.
                 const monthlyDistribution = {
                     'Septiembre': 0.60, 'Octubre': 0.14, 'Noviembre': 0.08, 'Diciembre': 0.01,
                     'Enero': 0.09, 'Febrero': 0.02, 'Marzo': 0.03, 'Abril': 0.01, 'Mayo': 0.02, 'Junio': 0.00
@@ -297,7 +304,7 @@
 
             function displayResults(forecast, userPosition, augustVacancies) {
                 resultsSection.classList.remove('hidden');
-                document.getElementById('cumulativeChartCard').parentElement.parentElement.classList.remove('hidden');
+                chartsContainer.classList.remove('hidden');
 
                 document.querySelectorAll('#results .result-card').forEach((card) => {
                     card.classList.remove('visible');
@@ -313,6 +320,9 @@
                 }
 
                 if (cumulativeChart) cumulativeChart.destroy();
+                let cumulativeOptions = JSON.parse(JSON.stringify(defaultChartOptions));
+                cumulativeOptions.scales.y.title = { display: true, text: 'Posición en la bolsa', font: { family: 'Inter', size: 14 } };
+
                 cumulativeChart = new Chart(document.getElementById('cumulativeForecastChart').getContext('2d'), {
                     type: 'line',
                     data: {
@@ -331,14 +341,13 @@
                             borderDash: [5, 5], fill: false, pointRadius: 0
                         }]
                     },
-                    options: { ...defaultChartOptions,
-                        scales: {
-                             y: { ...defaultChartOptions.scales.y, title: { display: true, text: 'Posición en la bolsa', font: { family: 'Inter', size: 14 } } }
-                        }
-                    }
+                    options: cumulativeOptions
                 });
 
                 if (monthlyChart) monthlyChart.destroy();
+                let monthlyOptions = JSON.parse(JSON.stringify(defaultChartOptions));
+                monthlyOptions.scales.y.title = { display: true, text: 'Nº de Llamamientos', font: { family: 'Inter', size: 14 } };
+
                 monthlyChart = new Chart(document.getElementById('monthlyCallsChart').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -351,11 +360,7 @@
                             borderRadius: 4, borderWidth: 1
                         }]
                     },
-                    options: { ...defaultChartOptions,
-                        scales: {
-                             y: { ...defaultChartOptions.scales.y, title: { display: true, text: 'Nº de Llamamientos', font: { family: 'Inter', size: 14 } } }
-                        }
-                    }
+                    options: monthlyOptions
                 });
                 
                 setTimeout(() => resultsSection.scrollIntoView({ behavior: 'smooth' }), 100);
