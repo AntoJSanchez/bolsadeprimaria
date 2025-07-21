@@ -87,12 +87,12 @@
             <h2 class="text-3xl font-bold text-center mb-10">2 Factores que Decidirán tu Futuro</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 <div class="info-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
-                    <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">🤯</span>Efecto Oposición</h3>
-                    <p class="text-gray-600">El curso 25-26 viene tras oposiciones. Miles de aspirantes nuevos con buena nota entran a la bolsa, lo que **ralentiza mucho el avance inicial** en comparación con otros años.</p>
+                    <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">🤯</span>Efecto Oposición (Agravado)</h3>
+                    <p class="text-gray-600">Tras las **1.500 plazas** de 2025 (más del doble que en 2022), se creará un "tapón" de aspirantes mucho mayor, lo que **ralentizará el avance de la bolsa más que nunca**.</p>
                 </div>
                 <div class="info-card bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500">
                     <h3 class="text-xl font-bold mb-2 flex items-center"><span class="text-3xl mr-3">📈</span>Inicio del Acuerdo</h3>
-                    <p class="text-gray-600">Para el curso 25-26 se crearán **2.500 plazas extra a repartir entre todas las especialidades**. Esto dará un impulso positivo, aunque el gran impacto del acuerdo se notará a partir de 2026.</p>
+                    <p class="text-gray-600">Para el curso 25-26 se crearán **2.500 plazas extra a repartir entre todas las especialidades**. Esto dará un impulso positivo que compensará en parte la ralentización.</p>
                 </div>
             </div>
         </section>
@@ -249,11 +249,12 @@
             }
 
             function calculateForecast(userPosition, augustVacancies, numProvinces) {
-                // Calculation Engine Updated:
-                // Baseline from the last post-opposition year (2022-23) is ~3600 calls.
-                // We add an estimate of ~600 new positions for Primary from the union agreement.
-                // New Base Total: 3600 + 600 = 4200.
-                const BASE_TOTAL_CALLS = 4200; 
+                // Calculation Engine Updated to reflect the aggravated opposition effect.
+                // Baseline from 2022-23 (~3600) is reduced due to the larger opposition (~1500 vs ~800 places).
+                // New baseline is more conservative: ~3100.
+                // We add the estimated impact from the union agreement for Primary (~600).
+                // New Base Total: 3100 + 600 = 3700.
+                const BASE_TOTAL_CALLS = 3700; 
                 const provinceMultipliers = { 1: 0.35, 2: 0.5, 3: 0.6, 4: 0.7, 5: 0.8, 6: 0.9, 7: 0.95, 8: 1.0 };
                 const provinceMultiplier = provinceMultipliers[numProvinces] || 1.0;
 
