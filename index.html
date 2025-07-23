@@ -92,230 +92,226 @@
     </main>
 
     <script>
-        // --- DATOS BASE CON PONDERACIÓN DE DEMANDA ---
-        // El demandFactor ajusta la ponderación de cada provincia. 
-        // > 1: Más demanda/velocidad (basado en aumento de plantilla o tradición de alta rotación).
-        // < 1: Menos demanda/velocidad (basado en recortes de plantilla o alta competencia de veteranos).
-        const PROVINCIAS = {
-            'Almería': { poblacion: 753000, demandFactor: 1.2, checked: false },
-            'Málaga': { poblacion: 1750000, demandFactor: 1.2, checked: false },
-            'Granada': { poblacion: 930000, demandFactor: 0.95, checked: true },
-            'Huelva': { poblacion: 530000, demandFactor: 0.9, checked: false },
-            'Sevilla': { poblacion: 1960000, demandFactor: 0.85, checked: false },
-            'Jaén': { poblacion: 620000, demandFactor: 0.8, checked: false },
-            'Córdoba': { poblacion: 775000, demandFactor: 0.8, checked: false },
-            'Cádiz': { poblacion: 1250000, demandFactor: 0.75, checked: false }
-        };
-
-        const TOTAL_WEIGHTED_DEMAND = Object.values(PROVINCIAS).reduce((sum, p) => sum + (p.poblacion * p.demandFactor), 0);
-
-        const LLAMAMIENTOS_MENSUALES = {
-            'Sept': 1500, 'Oct': 400, 'Nov': 250, 'Dic': 15,
-            'Ene': 250, 'Feb': 125, 'Mar': 125, 'Abr': 125,
-            'May': 85, 'Jun': 8
-        };
-        const MESES = Object.keys(LLAMAMIENTOS_MENSUALES);
-        
-        const CALENDARIO_SIPRI = [
-            { mes: 'Sept', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Sep' },
-            { mes: 'Sept', dia: 'Martes 9', incorporacion: 'Lunes 15 Sep' },
-            { mes: 'Sept', dia: 'Jueves 11', incorporacion: 'Miércoles 17 Sep' },
-            { mes: 'Sept', dia: 'Martes 16', incorporacion: 'Lunes 22 Sep' },
-            { mes: 'Sept', dia: 'Jueves 18', incorporacion: 'Miércoles 24 Sep' },
-            { mes: 'Sept', dia: 'Martes 23', incorporacion: 'Lunes 29 Sep' },
-            { mes: 'Sept', dia: 'Jueves 25', incorporacion: 'Miércoles 1 Oct' },
-            { mes: 'Sept', dia: 'Martes 30', incorporacion: 'Lunes 6 Oct' },
-            { mes: 'Oct', dia: 'Jueves 2', incorporacion: 'Miércoles 8 Oct' },
-            { mes: 'Oct', dia: 'Martes 7', incorporacion: 'Martes 14 Oct' },
-            { mes: 'Oct', dia: 'Jueves 9', incorporacion: 'Miércoles 15 Oct' },
-            { mes: 'Oct', dia: 'Martes 14', incorporacion: 'Lunes 20 Oct' },
-            { mes: 'Oct', dia: 'Jueves 16', incorporacion: 'Miércoles 22 Oct' },
-            { mes: 'Oct', dia: 'Martes 21', incorporacion: 'Lunes 27 Oct' },
-            { mes: 'Oct', dia: 'Jueves 23', incorporacion: 'Miércoles 29 Oct' },
-            { mes: 'Oct', dia: 'Martes 28', incorporacion: 'Lunes 3 Nov' },
-            { mes: 'Oct', dia: 'Jueves 30', incorporacion: 'Miércoles 5 Nov' },
-            { mes: 'Nov', dia: 'Martes 4', incorporacion: 'Lunes 10 Nov' },
-            { mes: 'Nov', dia: 'Jueves 6', incorporacion: 'Miércoles 12 Nov' },
-            { mes: 'Nov', dia: 'Martes 11', incorporacion: 'Lunes 17 Nov' },
-            { mes: 'Nov', dia: 'Jueves 13', incorporacion: 'Miércoles 19 Nov' },
-            { mes: 'Nov', dia: 'Martes 18', incorporacion: 'Lunes 24 Nov' },
-            { mes: 'Nov', dia: 'Jueves 20', incorporacion: 'Miércoles 26 Nov' },
-            { mes: 'Nov', dia: 'Martes 25', incorporacion: 'Lunes 1 Dic' },
-            { mes: 'Nov', dia: 'Jueves 27', incorporacion: 'Miércoles 3 Dic' },
-            { mes: 'Dic', dia: 'Martes 2', incorporacion: 'Martes 9 Dic' },
-            { mes: 'Dic', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Dic' },
-            { mes: 'Dic', dia: 'Martes 9', incorporacion: 'Lunes 15 Dic' },
-            { mes: 'Dic', dia: 'Jueves 11', incorporacion: 'Miércoles 17 Dic' },
-            { mes: 'Ene', dia: 'Jueves 8', incorporacion: 'Miércoles 14 Ene' },
-            { mes: 'Ene', dia: 'Martes 13', incorporacion: 'Lunes 19 Ene' },
-            { mes: 'Ene', dia: 'Jueves 15', incorporacion: 'Miércoles 21 Ene' },
-            { mes: 'Ene', dia: 'Martes 20', incorporacion: 'Lunes 26 Ene' },
-            { mes: 'Ene', dia: 'Jueves 22', incorporacion: 'Miércoles 28 Ene' },
-            { mes: 'Ene', dia: 'Martes 27', incorporacion: 'Lunes 2 Feb' },
-            { mes: 'Ene', dia: 'Jueves 29', incorporacion: 'Miércoles 4 Feb' },
-            { mes: 'Feb', dia: 'Martes 3', incorporacion: 'Lunes 9 Feb' },
-            { mes: 'Feb', dia: 'Jueves 5', incorporacion: 'Miércoles 11 Feb' },
-            { mes: 'Feb', dia: 'Martes 10', incorporacion: 'Lunes 16 Feb' },
-            { mes: 'Feb', dia: 'Jueves 12', incorporacion: 'Miércoles 18 Feb' },
-            { mes: 'Feb', dia: 'Martes 17', incorporacion: 'Lunes 23 Feb' },
-            { mes: 'Feb', dia: 'Jueves 19', incorporacion: 'Miércoles 25 Feb' },
-            { mes: 'Feb', dia: 'Martes 24', incorporacion: 'Lunes 2 Mar' },
-            { mes: 'Feb', dia: 'Jueves 26', incorporacion: 'Miércoles 4 Mar' },
-            { mes: 'Mar', dia: 'Martes 3', incorporacion: 'Lunes 9 Mar' },
-            { mes: 'Mar', dia: 'Jueves 5', incorporacion: 'Miércoles 11 Mar' },
-            { mes: 'Mar', dia: 'Martes 10', incorporacion: 'Lunes 16 Mar' },
-            { mes: 'Mar', dia: 'Jueves 12', incorporacion: 'Miércoles 18 Mar' },
-            { mes: 'Mar', dia: 'Martes 17', incorporacion: 'Lunes 23 Mar' },
-            { mes: 'Mar', dia: 'Jueves 19', incorporacion: 'Miércoles 25 Mar' },
-            { mes: 'Mar', dia: 'Martes 24', incorporacion: 'Lunes 6 Abr' },
-            { mes: 'Abr', dia: 'Martes 7', incorporacion: 'Lunes 13 Abr' },
-            { mes: 'Abr', dia: 'Jueves 9', incorporacion: 'Miércoles 15 Abr' },
-            { mes: 'Abr', dia: 'Martes 14', incorporacion: 'Lunes 20 Abr' },
-            { mes: 'Abr', dia: 'Jueves 16', incorporacion: 'Miércoles 22 Abr' },
-            { mes: 'Abr', dia: 'Martes 21', incorporacion: 'Lunes 27 Abr' },
-            { mes: 'Abr', dia: 'Jueves 23', incorporacion: 'Miércoles 29 Abr' },
-            { mes: 'Abr', dia: 'Martes 28', incorporacion: 'Lunes 4 May' },
-            { mes: 'Abr', dia: 'Jueves 30', incorporacion: 'Miércoles 6 May' },
-            { mes: 'May', dia: 'Martes 5', incorporacion: 'Lunes 11 May' },
-            { mes: 'May', dia: 'Jueves 7', incorporacion: 'Miércoles 13 May' },
-            { mes: 'May', dia: 'Martes 12', incorporacion: 'Lunes 18 May' },
-            { mes: 'May', dia: 'Jueves 14', incorporacion: 'Miércoles 20 May' },
-            { mes: 'May', dia: 'Martes 19', incorporacion: 'Lunes 25 May' },
-            { mes: 'May', dia: 'Jueves 21', incorporacion: 'Miércoles 27 May' },
-            { mes: 'May', dia: 'Martes 26', incorporacion: 'Lunes 1 Jun' },
-            { mes: 'May', dia: 'Jueves 28', incorporacion: 'Miércoles 3 Jun' },
-            { mes: 'Jun', dia: 'Martes 2', incorporacion: 'Lunes 8 Jun' },
-            { mes: 'Jun', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Jun' },
-        ];
-
-        // --- LÓGICA DE GRÁFICOS ---
-        let cumulativeChart, monthlyCallsChart;
-
-        function createCharts() {
-            const cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
-            cumulativeChart = new Chart(cumulativeCtx, {
-                type: 'line',
-                data: { labels: MESES, datasets: [] },
-                options: getChartOptions('Posición en bolsa')
-            });
-
-            const monthlyCtx = document.getElementById('monthlyCallsChart').getContext('2d');
-            monthlyCallsChart = new Chart(monthlyCtx, {
-                type: 'bar',
-                data: { labels: MESES, datasets: [] },
-                options: getChartOptions('Nº de llamamientos')
-            });
-        }
-
-        function getChartOptions(yAxisTitle) {
-            return {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: true, position: 'bottom' } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: yAxisTitle, color: '#388E3C' }
-                    },
-                    x: { ticks: { color: '#333' } }
-                }
-            };
-        }
-
-        function calcularPronostico(posicionEfectiva, factorProvincial) {
-            if (posicionEfectiva <= 0) {
-                return { tipo: 'verano', mesIndex: -1 };
-            }
-
-            let llamamientosAcumulados = 0;
-            for (let i = 0; i < MESES.length; i++) {
-                const mes = MESES[i];
-                const llamamientosMesPonderados = LLAMAMIENTOS_MENSUALES[mes] * factorProvincial;
-                
-                if (llamamientosAcumulados + llamamientosMesPonderados >= posicionEfectiva) {
-                    const restante = posicionEfectiva - llamamientosAcumulados;
-                    const proporcionMes = llamamientosMesPonderados > 0 ? restante / llamamientosMesPonderados : 0;
-                    
-                    const callsInMonth = CALENDARIO_SIPRI.filter(c => c.mes === mes);
-                    if (callsInMonth.length > 0) {
-                        const callIndex = Math.min(Math.floor(proporcionMes * callsInMonth.length), callsInMonth.length - 1);
-                        const semana = Math.max(1, Math.ceil(proporcionMes * 4));
-                        return { tipo: 'especifico', call: callsInMonth[callIndex], semana: `Semana ${semana}`, mes: mes, mesIndex: i };
-                    }
-                }
-                llamamientosAcumulados += llamamientosMesPonderados;
-            }
-
-            return { tipo: 'siguiente_curso', mesIndex: MESES.length };
-        }
-
-        function actualizarUI(resultado, posicionEfectiva, factorProvincial, competenciaReal) {
-            document.getElementById('resultsBlock').classList.remove('hidden');
-            
-            const resultTextEl = document.getElementById('resultText');
-            switch(resultado.tipo) {
-                case 'verano':
-                    resultTextEl.innerHTML = '<p class="text-4xl font-bold">¡Adjudicación estimada en Verano!</p>';
-                    break;
-                case 'siguiente_curso':
-                    resultTextEl.innerHTML = `<p class="text-3xl font-bold">No se estima llamada este curso.</p><p class="text-sm mt-2">Tu competencia real estimada (${Math.round(competenciaReal)} personas) supera los llamamientos previstos para tus provincias.</p>`;
-                    break;
-                case 'especifico':
-                    const call = resultado.call;
-                    resultTextEl.innerHTML = `
-                        <p class="text-3xl font-bold">${resultado.semana} de ${resultado.mes}</p>
-                        <div class="mt-2 text-xl">
-                            <p>Llamamiento estimado: <strong>${call.dia}</strong></p>
-                            <p>Incorporación prevista: <strong>${call.incorporacion}</strong></p>
-                        </div>
-                        <p class="text-xs mt-3 opacity-80">Cálculo basado en una competencia real estimada de ${Math.round(competenciaReal)} personas para tus provincias.</p>
-                    `;
-                    break;
-            }
-
-            if (!cumulativeChart) createCharts();
-            
-            const avancePersonalizadoAcumulado = MESES.reduce((acc, mes) => {
-                const avanceMes = LLAMAMIENTOS_MENSUALES[mes] * factorProvincial;
-                acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + avanceMes);
-                return acc;
-            }, []);
-
-            const posicionUsuarioData = new Array(MESES.length).fill(competenciaReal > 0 ? competenciaReal : null);
-
-            cumulativeChart.data.datasets = [
-                {
-                    label: 'Avance Estimado en tus Provincias',
-                    data: avancePersonalizadoAcumulado,
-                    borderColor: '#4CAF50',
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                    fill: true,
-                    tension: 0.2
-                },
-                {
-                    label: 'Tu Competencia Real Estimada',
-                    data: posicionUsuarioData,
-                    borderColor: '#1B5E20',
-                    borderDash: [5, 5],
-                    backgroundColor: 'transparent',
-                    pointRadius: 0,
-                    tension: 0.1
-                }
-            ];
-            cumulativeChart.update();
-
-            const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
-
-            monthlyCallsChart.data.datasets = [{
-                label: 'Llamamientos Mensuales (General)',
-                data: Object.values(LLAMAMIENTOS_MENSUALES),
-                backgroundColor: coloresBarras,
-                borderRadius: 4
-            }];
-            monthlyCallsChart.update();
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
+            // --- DATOS BASE CON PONDERACIÓN DE DEMANDA ---
+            const PROVINCIAS = {
+                'Almería': { poblacion: 753000, demandFactor: 1.2, checked: false },
+                'Málaga': { poblacion: 1750000, demandFactor: 1.2, checked: false },
+                'Granada': { poblacion: 930000, demandFactor: 0.95, checked: true },
+                'Huelva': { poblacion: 530000, demandFactor: 0.9, checked: false },
+                'Sevilla': { poblacion: 1960000, demandFactor: 0.85, checked: false },
+                'Jaén': { poblacion: 620000, demandFactor: 0.8, checked: false },
+                'Córdoba': { poblacion: 775000, demandFactor: 0.8, checked: false },
+                'Cádiz': { poblacion: 1250000, demandFactor: 0.75, checked: false }
+            };
+
+            const TOTAL_WEIGHTED_DEMAND = Object.values(PROVINCIAS).reduce((sum, p) => sum + (p.poblacion * p.demandFactor), 0);
+
+            const LLAMAMIENTOS_MENSUALES = {
+                'Sept': 1500, 'Oct': 400, 'Nov': 250, 'Dic': 15,
+                'Ene': 250, 'Feb': 125, 'Mar': 125, 'Abr': 125,
+                'May': 85, 'Jun': 8
+            };
+            const MESES = Object.keys(LLAMAMIENTOS_MENSUALES);
+            
+            const CALENDARIO_SIPRI = [
+                { mes: 'Sept', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Sep' },
+                { mes: 'Sept', dia: 'Martes 9', incorporacion: 'Lunes 15 Sep' },
+                { mes: 'Sept', dia: 'Jueves 11', incorporacion: 'Miércoles 17 Sep' },
+                { mes: 'Sept', dia: 'Martes 16', incorporacion: 'Lunes 22 Sep' },
+                { mes: 'Sept', dia: 'Jueves 18', incorporacion: 'Miércoles 24 Sep' },
+                { mes: 'Sept', dia: 'Martes 23', incorporacion: 'Lunes 29 Sep' },
+                { mes: 'Sept', dia: 'Jueves 25', incorporacion: 'Miércoles 1 Oct' },
+                { mes: 'Sept', dia: 'Martes 30', incorporacion: 'Lunes 6 Oct' },
+                { mes: 'Oct', dia: 'Jueves 2', incorporacion: 'Miércoles 8 Oct' },
+                { mes: 'Oct', dia: 'Martes 7', incorporacion: 'Martes 14 Oct' },
+                { mes: 'Oct', dia: 'Jueves 9', incorporacion: 'Miércoles 15 Oct' },
+                { mes: 'Oct', dia: 'Martes 14', incorporacion: 'Lunes 20 Oct' },
+                { mes: 'Oct', dia: 'Jueves 16', incorporacion: 'Miércoles 22 Oct' },
+                { mes: 'Oct', dia: 'Martes 21', incorporacion: 'Lunes 27 Oct' },
+                { mes: 'Oct', dia: 'Jueves 23', incorporacion: 'Miércoles 29 Oct' },
+                { mes: 'Oct', dia: 'Martes 28', incorporacion: 'Lunes 3 Nov' },
+                { mes: 'Oct', dia: 'Jueves 30', incorporacion: 'Miércoles 5 Nov' },
+                { mes: 'Nov', dia: 'Martes 4', incorporacion: 'Lunes 10 Nov' },
+                { mes: 'Nov', dia: 'Jueves 6', incorporacion: 'Miércoles 12 Nov' },
+                { mes: 'Nov', dia: 'Martes 11', incorporacion: 'Lunes 17 Nov' },
+                { mes: 'Nov', dia: 'Jueves 13', incorporacion: 'Miércoles 19 Nov' },
+                { mes: 'Nov', dia: 'Martes 18', incorporacion: 'Lunes 24 Nov' },
+                { mes: 'Nov', dia: 'Jueves 20', incorporacion: 'Miércoles 26 Nov' },
+                { mes: 'Nov', dia: 'Martes 25', incorporacion: 'Lunes 1 Dic' },
+                { mes: 'Nov', dia: 'Jueves 27', incorporacion: 'Miércoles 3 Dic' },
+                { mes: 'Dic', dia: 'Martes 2', incorporacion: 'Martes 9 Dic' },
+                { mes: 'Dic', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Dic' },
+                { mes: 'Dic', dia: 'Martes 9', incorporacion: 'Lunes 15 Dic' },
+                { mes: 'Dic', dia: 'Jueves 11', incorporacion: 'Miércoles 17 Dic' },
+                { mes: 'Ene', dia: 'Jueves 8', incorporacion: 'Miércoles 14 Ene' },
+                { mes: 'Ene', dia: 'Martes 13', incorporacion: 'Lunes 19 Ene' },
+                { mes: 'Ene', dia: 'Jueves 15', incorporacion: 'Miércoles 21 Ene' },
+                { mes: 'Ene', dia: 'Martes 20', incorporacion: 'Lunes 26 Ene' },
+                { mes: 'Ene', dia: 'Jueves 22', incorporacion: 'Miércoles 28 Ene' },
+                { mes: 'Ene', dia: 'Martes 27', incorporacion: 'Lunes 2 Feb' },
+                { mes: 'Ene', dia: 'Jueves 29', incorporacion: 'Miércoles 4 Feb' },
+                { mes: 'Feb', dia: 'Martes 3', incorporacion: 'Lunes 9 Feb' },
+                { mes: 'Feb', dia: 'Jueves 5', incorporacion: 'Miércoles 11 Feb' },
+                { mes: 'Feb', dia: 'Martes 10', incorporacion: 'Lunes 16 Feb' },
+                { mes: 'Feb', dia: 'Jueves 12', incorporacion: 'Miércoles 18 Feb' },
+                { mes: 'Feb', dia: 'Martes 17', incorporacion: 'Lunes 23 Feb' },
+                { mes: 'Feb', dia: 'Jueves 19', incorporacion: 'Miércoles 25 Feb' },
+                { mes: 'Feb', dia: 'Martes 24', incorporacion: 'Lunes 2 Mar' },
+                { mes: 'Feb', dia: 'Jueves 26', incorporacion: 'Miércoles 4 Mar' },
+                { mes: 'Mar', dia: 'Martes 3', incorporacion: 'Lunes 9 Mar' },
+                { mes: 'Mar', dia: 'Jueves 5', incorporacion: 'Miércoles 11 Mar' },
+                { mes: 'Mar', dia: 'Martes 10', incorporacion: 'Lunes 16 Mar' },
+                { mes: 'Mar', dia: 'Jueves 12', incorporacion: 'Miércoles 18 Mar' },
+                { mes: 'Mar', dia: 'Martes 17', incorporacion: 'Lunes 23 Mar' },
+                { mes: 'Mar', dia: 'Jueves 19', incorporacion: 'Miércoles 25 Mar' },
+                { mes: 'Mar', dia: 'Martes 24', incorporacion: 'Lunes 6 Abr' },
+                { mes: 'Abr', dia: 'Martes 7', incorporacion: 'Lunes 13 Abr' },
+                { mes: 'Abr', dia: 'Jueves 9', incorporacion: 'Miércoles 15 Abr' },
+                { mes: 'Abr', dia: 'Martes 14', incorporacion: 'Lunes 20 Abr' },
+                { mes: 'Abr', dia: 'Jueves 16', incorporacion: 'Miércoles 22 Abr' },
+                { mes: 'Abr', dia: 'Martes 21', incorporacion: 'Lunes 27 Abr' },
+                { mes: 'Abr', dia: 'Jueves 23', incorporacion: 'Miércoles 29 Abr' },
+                { mes: 'Abr', dia: 'Martes 28', incorporacion: 'Lunes 4 May' },
+                { mes: 'Abr', dia: 'Jueves 30', incorporacion: 'Miércoles 6 May' },
+                { mes: 'May', dia: 'Martes 5', incorporacion: 'Lunes 11 May' },
+                { mes: 'May', dia: 'Jueves 7', incorporacion: 'Miércoles 13 May' },
+                { mes: 'May', dia: 'Martes 12', incorporacion: 'Lunes 18 May' },
+                { mes: 'May', dia: 'Jueves 14', incorporacion: 'Miércoles 20 May' },
+                { mes: 'May', dia: 'Martes 19', incorporacion: 'Lunes 25 May' },
+                { mes: 'May', dia: 'Jueves 21', incorporacion: 'Miércoles 27 May' },
+                { mes: 'May', dia: 'Martes 26', incorporacion: 'Lunes 1 Jun' },
+                { mes: 'May', dia: 'Jueves 28', incorporacion: 'Miércoles 3 Jun' },
+                { mes: 'Jun', dia: 'Martes 2', incorporacion: 'Lunes 8 Jun' },
+                { mes: 'Jun', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Jun' },
+            ];
+
+            // --- LÓGICA DE GRÁFICOS ---
+            let cumulativeChart, monthlyCallsChart;
+
+            function createCharts() {
+                const cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
+                cumulativeChart = new Chart(cumulativeCtx, {
+                    type: 'line',
+                    data: { labels: MESES, datasets: [] },
+                    options: getChartOptions('Posición en bolsa')
+                });
+
+                const monthlyCtx = document.getElementById('monthlyCallsChart').getContext('2d');
+                monthlyCallsChart = new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: { labels: MESES, datasets: [] },
+                    options: getChartOptions('Nº de llamamientos')
+                });
+            }
+
+            function getChartOptions(yAxisTitle) {
+                return {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'bottom' } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: yAxisTitle, color: '#388E3C' }
+                        },
+                        x: { ticks: { color: '#333' } }
+                    }
+                };
+            }
+
+            function calcularPronostico(posicionRealACompetir, factorProvincial) {
+                if (posicionRealACompetir <= 0) {
+                    return { tipo: 'verano', mesIndex: -1 };
+                }
+
+                let llamamientosAcumulados = 0;
+                for (let i = 0; i < MESES.length; i++) {
+                    const mes = MESES[i];
+                    const llamamientosMesPonderados = LLAMAMIENTOS_MENSUALES[mes] * factorProvincial;
+                    
+                    if (llamamientosAcumulados + llamamientosMesPonderados >= posicionRealACompetir) {
+                        const restante = posicionRealACompetir - llamamientosAcumulados;
+                        const proporcionMes = llamamientosMesPonderados > 0 ? restante / llamamientosMesPonderados : 0;
+                        
+                        const callsInMonth = CALENDARIO_SIPRI.filter(c => c.mes === mes);
+                        if (callsInMonth.length > 0) {
+                            const callIndex = Math.min(Math.floor(proporcionMes * callsInMonth.length), callsInMonth.length - 1);
+                            const semana = Math.max(1, Math.ceil(proporcionMes * 4));
+                            return { tipo: 'especifico', call: callsInMonth[callIndex], semana: `Semana ${semana}`, mes: mes, mesIndex: i };
+                        }
+                    }
+                    llamamientosAcumulados += llamamientosMesPonderados;
+                }
+
+                return { tipo: 'siguiente_curso', mesIndex: MESES.length };
+            }
+
+            function actualizarUI(resultado, posicionEfectiva, competenciaReal, factorProvincial) {
+                document.getElementById('resultsBlock').classList.remove('hidden');
+                
+                const resultTextEl = document.getElementById('resultText');
+                switch(resultado.tipo) {
+                    case 'verano':
+                        resultTextEl.innerHTML = '<p class="text-4xl font-bold">¡Adjudicación estimada en Verano!</p>';
+                        break;
+                    case 'siguiente_curso':
+                        resultTextEl.innerHTML = `<p class="text-3xl font-bold">No se estima llamada este curso.</p><p class="text-sm mt-2">Tu competencia real estimada (${Math.round(competenciaReal)} personas) supera los llamamientos previstos para tus provincias.</p>`;
+                        break;
+                    case 'especifico':
+                        const call = resultado.call;
+                        resultTextEl.innerHTML = `
+                            <p class="text-3xl font-bold">${resultado.semana} de ${resultado.mes}</p>
+                            <div class="mt-2 text-xl">
+                                <p>Llamamiento estimado: <strong>${call.dia}</strong></p>
+                                <p>Incorporación prevista: <strong>${call.incorporacion}</strong></p>
+                            </div>
+                            <p class="text-xs mt-3 opacity-80">Cálculo basado en una competencia real de ${Math.round(competenciaReal)} personas para tus provincias.</p>
+                        `;
+                        break;
+                }
+
+                if (!cumulativeChart) createCharts();
+                
+                const avanceGeneralAcumulado = MESES.reduce((acc, mes) => {
+                    acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + LLAMAMIENTOS_MENSUALES[mes]);
+                    return acc;
+                }, []);
+
+                const posicionUsuarioData = new Array(MESES.length).fill(posicionEfectiva > 0 ? posicionEfectiva : null);
+
+                cumulativeChart.data.datasets = [
+                    {
+                        label: 'Avance General Estimado de la Bolsa',
+                        data: avanceGeneralAcumulado,
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        fill: true,
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Tu Posición en Bolsa (tras vacantes)',
+                        data: posicionUsuarioData,
+                        borderColor: '#1B5E20',
+                        borderDash: [5, 5],
+                        backgroundColor: 'transparent',
+                        pointRadius: 0,
+                        tension: 0.1
+                    }
+                ];
+                cumulativeChart.update();
+
+                const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
+
+                monthlyCallsChart.data.datasets = [{
+                    label: 'Llamamientos Mensuales (General)',
+                    data: Object.values(LLAMAMIENTOS_MENSUALES),
+                    backgroundColor: coloresBarras,
+                    borderRadius: 4
+                }];
+                monthlyCallsChart.update();
+            }
+
             const provinciasContainer = document.getElementById('provinciasContainer');
             Object.keys(PROVINCIAS).forEach(nombre => {
                 const div = document.createElement('div');
@@ -374,10 +370,9 @@
                 factorProvincial *= selectivityModifier;
                 
                 const resultado = calcularPronostico(competenciaReal, factorProvincial);
-                actualizarUI(resultado, posicion - vacantes, factorProvincial, competenciaReal);
+                actualizarUI(resultado, competidoresDirectos, competenciaReal, factorProvincial);
             });
             
-            // Simular un clic al cargar la página para mostrar el resultado inicial
             document.getElementById('calculateBtn').click();
         });
     </script>
