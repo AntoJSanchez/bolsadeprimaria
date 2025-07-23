@@ -24,7 +24,7 @@
             }
         }
         .result-card {
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            background: linear-gradient(135deg, #81C784, #4CAF50);
         }
     </style>
 </head>
@@ -70,8 +70,7 @@
         <!-- Bloque de Resultados -->
         <div id="resultsBlock" class="hidden">
              <div id="resultText" class="text-center mb-8 p-6 rounded-2xl shadow-lg text-white result-card">
-                <p class="text-lg">Tu llamada se estima para la:</p>
-                <p id="prediction" class="text-3xl font-bold mt-1"></p>
+                <!-- El resultado se inyectará aquí -->
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white rounded-2xl shadow-md p-6">
@@ -111,6 +110,78 @@
             'May': 85, 'Jun': 8
         };
         const MESES = Object.keys(LLAMAMIENTOS_MENSUALES);
+        
+        const CALENDARIO_SIPRI = [
+            { mes: 'Sept', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Sep' },
+            { mes: 'Sept', dia: 'Martes 9', incorporacion: 'Lunes 15 Sep' },
+            { mes: 'Sept', dia: 'Jueves 11', incorporacion: 'Miércoles 17 Sep' },
+            { mes: 'Sept', dia: 'Martes 16', incorporacion: 'Lunes 22 Sep' },
+            { mes: 'Sept', dia: 'Jueves 18', incorporacion: 'Miércoles 24 Sep' },
+            { mes: 'Sept', dia: 'Martes 23', incorporacion: 'Lunes 29 Sep' },
+            { mes: 'Sept', dia: 'Jueves 25', incorporacion: 'Miércoles 1 Oct' },
+            { mes: 'Sept', dia: 'Martes 30', incorporacion: 'Lunes 6 Oct' },
+            { mes: 'Oct', dia: 'Jueves 2', incorporacion: 'Miércoles 8 Oct' },
+            { mes: 'Oct', dia: 'Martes 7', incorporacion: 'Martes 14 Oct' },
+            { mes: 'Oct', dia: 'Jueves 9', incorporacion: 'Miércoles 15 Oct' },
+            { mes: 'Oct', dia: 'Martes 14', incorporacion: 'Lunes 20 Oct' },
+            { mes: 'Oct', dia: 'Jueves 16', incorporacion: 'Miércoles 22 Oct' },
+            { mes: 'Oct', dia: 'Martes 21', incorporacion: 'Lunes 27 Oct' },
+            { mes: 'Oct', dia: 'Jueves 23', incorporacion: 'Miércoles 29 Oct' },
+            { mes: 'Oct', dia: 'Martes 28', incorporacion: 'Lunes 3 Nov' },
+            { mes: 'Oct', dia: 'Jueves 30', incorporacion: 'Miércoles 5 Nov' },
+            { mes: 'Nov', dia: 'Martes 4', incorporacion: 'Lunes 10 Nov' },
+            { mes: 'Nov', dia: 'Jueves 6', incorporacion: 'Miércoles 12 Nov' },
+            { mes: 'Nov', dia: 'Martes 11', incorporacion: 'Lunes 17 Nov' },
+            { mes: 'Nov', dia: 'Jueves 13', incorporacion: 'Miércoles 19 Nov' },
+            { mes: 'Nov', dia: 'Martes 18', incorporacion: 'Lunes 24 Nov' },
+            { mes: 'Nov', dia: 'Jueves 20', incorporacion: 'Miércoles 26 Nov' },
+            { mes: 'Nov', dia: 'Martes 25', incorporacion: 'Lunes 1 Dic' },
+            { mes: 'Nov', dia: 'Jueves 27', incorporacion: 'Miércoles 3 Dic' },
+            { mes: 'Dic', dia: 'Martes 2', incorporacion: 'Martes 9 Dic' },
+            { mes: 'Dic', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Dic' },
+            { mes: 'Dic', dia: 'Martes 9', incorporacion: 'Lunes 15 Dic' },
+            { mes: 'Dic', dia: 'Jueves 11', incorporacion: 'Miércoles 17 Dic' },
+            { mes: 'Ene', dia: 'Jueves 8', incorporacion: 'Miércoles 14 Ene' },
+            { mes: 'Ene', dia: 'Martes 13', incorporacion: 'Lunes 19 Ene' },
+            { mes: 'Ene', dia: 'Jueves 15', incorporacion: 'Miércoles 21 Ene' },
+            { mes: 'Ene', dia: 'Martes 20', incorporacion: 'Lunes 26 Ene' },
+            { mes: 'Ene', dia: 'Jueves 22', incorporacion: 'Miércoles 28 Ene' },
+            { mes: 'Ene', dia: 'Martes 27', incorporacion: 'Lunes 2 Feb' },
+            { mes: 'Ene', dia: 'Jueves 29', incorporacion: 'Miércoles 4 Feb' },
+            { mes: 'Feb', dia: 'Martes 3', incorporacion: 'Lunes 9 Feb' },
+            { mes: 'Feb', dia: 'Jueves 5', incorporacion: 'Miércoles 11 Feb' },
+            { mes: 'Feb', dia: 'Martes 10', incorporacion: 'Lunes 16 Feb' },
+            { mes: 'Feb', dia: 'Jueves 12', incorporacion: 'Miércoles 18 Feb' },
+            { mes: 'Feb', dia: 'Martes 17', incorporacion: 'Lunes 23 Feb' },
+            { mes: 'Feb', dia: 'Jueves 19', incorporacion: 'Miércoles 25 Feb' },
+            { mes: 'Feb', dia: 'Martes 24', incorporacion: 'Lunes 2 Mar' },
+            { mes: 'Feb', dia: 'Jueves 26', incorporacion: 'Miércoles 4 Mar' },
+            { mes: 'Mar', dia: 'Martes 3', incorporacion: 'Lunes 9 Mar' },
+            { mes: 'Mar', dia: 'Jueves 5', incorporacion: 'Miércoles 11 Mar' },
+            { mes: 'Mar', dia: 'Martes 10', incorporacion: 'Lunes 16 Mar' },
+            { mes: 'Mar', dia: 'Jueves 12', incorporacion: 'Miércoles 18 Mar' },
+            { mes: 'Mar', dia: 'Martes 17', incorporacion: 'Lunes 23 Mar' },
+            { mes: 'Mar', dia: 'Jueves 19', incorporacion: 'Miércoles 25 Mar' },
+            { mes: 'Mar', dia: 'Martes 24', incorporacion: 'Lunes 6 Abr' },
+            { mes: 'Abr', dia: 'Martes 7', incorporacion: 'Lunes 13 Abr' },
+            { mes: 'Abr', dia: 'Jueves 9', incorporacion: 'Miércoles 15 Abr' },
+            { mes: 'Abr', dia: 'Martes 14', incorporacion: 'Lunes 20 Abr' },
+            { mes: 'Abr', dia: 'Jueves 16', incorporacion: 'Miércoles 22 Abr' },
+            { mes: 'Abr', dia: 'Martes 21', incorporacion: 'Lunes 27 Abr' },
+            { mes: 'Abr', dia: 'Jueves 23', incorporacion: 'Miércoles 29 Abr' },
+            { mes: 'Abr', dia: 'Martes 28', incorporacion: 'Lunes 4 May' },
+            { mes: 'Abr', dia: 'Jueves 30', incorporacion: 'Miércoles 6 May' },
+            { mes: 'May', dia: 'Martes 5', incorporacion: 'Lunes 11 May' },
+            { mes: 'May', dia: 'Jueves 7', incorporacion: 'Miércoles 13 May' },
+            { mes: 'May', dia: 'Martes 12', incorporacion: 'Lunes 18 May' },
+            { mes: 'May', dia: 'Jueves 14', incorporacion: 'Miércoles 20 May' },
+            { mes: 'May', dia: 'Martes 19', incorporacion: 'Lunes 25 May' },
+            { mes: 'May', dia: 'Jueves 21', incorporacion: 'Miércoles 27 May' },
+            { mes: 'May', dia: 'Martes 26', incorporacion: 'Lunes 1 Jun' },
+            { mes: 'May', dia: 'Jueves 28', incorporacion: 'Miércoles 3 Jun' },
+            { mes: 'Jun', dia: 'Martes 2', incorporacion: 'Lunes 8 Jun' },
+            { mes: 'Jun', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Jun' },
+        ];
 
         // --- INICIALIZACIÓN DE LA UI ---
         const provinciasContainer = document.getElementById('provinciasContainer');
@@ -186,7 +257,7 @@
         function calcularPronostico(posicion, vacantes, factorProvincial) {
             const posicionEfectiva = posicion - vacantes;
             if (posicionEfectiva <= 0) {
-                return { mes: 'Agosto', semana: 'Adjudicación de Verano', mesIndex: -1 };
+                return { tipo: 'verano', mesIndex: -1 };
             }
 
             let llamamientosAcumulados = 0;
@@ -197,25 +268,42 @@
                 if (llamamientosAcumulados + llamamientosMesPonderados >= posicionEfectiva) {
                     const restante = posicionEfectiva - llamamientosAcumulados;
                     const proporcionMes = llamamientosMesPonderados > 0 ? restante / llamamientosMesPonderados : 0;
-                    const semana = Math.ceil(proporcionMes * 4);
-                    return { mes, semana: `Semana ${semana}`, mesIndex: i };
+                    
+                    const callsInMonth = CALENDARIO_SIPRI.filter(c => c.mes === mes);
+                    if (callsInMonth.length > 0) {
+                        const callIndex = Math.min(Math.floor(proporcionMes * callsInMonth.length), callsInMonth.length - 1);
+                        const semana = Math.ceil(proporcionMes * 4);
+                        return { tipo: 'especifico', call: callsInMonth[callIndex], semana: `Semana ${semana}`, mes: mes, mesIndex: i };
+                    }
                 }
                 llamamientosAcumulados += llamamientosMesPonderados;
             }
 
-            return { mes: 'Curso Siguiente', semana: 'No se estima llamada este curso', mesIndex: MESES.length };
+            return { tipo: 'siguiente_curso', mesIndex: MESES.length };
         }
 
         // --- ACTUALIZACIÓN DE LA UI ---
         function actualizarUI(resultado, posicionEfectiva, factorProvincial) {
             document.getElementById('resultsBlock').classList.remove('hidden');
             
-            if (resultado.mesIndex === -1) {
-                document.getElementById('prediction').textContent = '¡Adjudicación en Verano!';
-            } else if (resultado.mesIndex === MESES.length) {
-                document.getElementById('prediction').textContent = 'No se estima llamada este curso';
-            } else {
-                document.getElementById('prediction').textContent = `${resultado.semana} de ${resultado.mes}`;
+            const resultTextEl = document.getElementById('resultText');
+            switch(resultado.tipo) {
+                case 'verano':
+                    resultTextEl.innerHTML = '<p class="text-4xl font-bold">¡Adjudicación estimada en Verano!</p>';
+                    break;
+                case 'siguiente_curso':
+                    resultTextEl.innerHTML = '<p class="text-3xl font-bold">No se estima llamada este curso.</p>';
+                    break;
+                case 'especifico':
+                    const call = resultado.call;
+                    resultTextEl.innerHTML = `
+                        <p class="text-3xl font-bold">${resultado.semana} de ${resultado.mes}</p>
+                        <div class="mt-2 text-xl">
+                            <p>Llamamiento estimado: <strong>${call.dia}</strong></p>
+                            <p>Incorporación prevista: <strong>${call.incorporacion}</strong></p>
+                        </div>
+                    `;
+                    break;
             }
 
             if (!cumulativeChart) createCharts();
@@ -254,7 +342,7 @@
             const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
 
             monthlyCallsChart.data.datasets = [{
-                label: 'Llamamientos por Mes (General)',
+                label: 'Llamamientos Mensuales (General)',
                 data: Object.values(LLAMAMIENTOS_MENSUALES),
                 backgroundColor: coloresBarras,
                 borderRadius: 4
