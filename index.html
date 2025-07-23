@@ -180,7 +180,7 @@
 
             const factorProvincial = provinciasSeleccionadas.reduce((sum, prov) => sum + PROVINCIAS[prov].poblacion, 0) / TOTAL_POBLACION;
             const resultado = calcularPronostico(posicion, vacantes, factorProvincial);
-            actualizarUI(resultado, posicion - vacantes);
+            actualizarUI(resultado, posicion - vacantes, factorProvincial);
         });
 
         function calcularPronostico(posicion, vacantes, factorProvincial) {
@@ -196,7 +196,7 @@
                 
                 if (llamamientosAcumulados + llamamientosMesPonderados >= posicionEfectiva) {
                     const restante = posicionEfectiva - llamamientosAcumulados;
-                    const proporcionMes = restante / llamamientosMesPonderados;
+                    const proporcionMes = llamamientosMesPonderados > 0 ? restante / llamamientosMesPonderados : 0;
                     const semana = Math.ceil(proporcionMes * 4);
                     return { mes, semana: `Semana ${semana}`, mesIndex: i };
                 }
@@ -207,7 +207,7 @@
         }
 
         // --- ACTUALIZACIÓN DE LA UI ---
-        function actualizarUI(resultado, posicionEfectiva) {
+        function actualizarUI(resultado, posicionEfectiva, factorProvincial) {
             document.getElementById('resultsBlock').classList.remove('hidden');
             
             if (resultado.mesIndex === -1) {
@@ -221,8 +221,9 @@
             if (!cumulativeChart) createCharts();
             
             // Gráfico Acumulado
-            const avanceGeneralAcumulado = MESES.reduce((acc, mes) => {
-                acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + LLAMAMIENTOS_MENSUALES[mes]);
+            const avancePersonalizadoAcumulado = MESES.reduce((acc, mes) => {
+                const avanceMes = LLAMAMIENTOS_MENSUALES[mes] * factorProvincial;
+                acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + avanceMes);
                 return acc;
             }, []);
 
@@ -230,8 +231,8 @@
 
             cumulativeChart.data.datasets = [
                 {
-                    label: 'Avance Estimado de la Bolsa',
-                    data: avanceGeneralAcumulado,
+                    label: 'Tu Avance Estimado (según provincias)',
+                    data: avancePersonalizadoAcumulado,
                     borderColor: '#4CAF50',
                     backgroundColor: 'rgba(76, 175, 80, 0.2)',
                     fill: true,
@@ -253,7 +254,7 @@
             const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
 
             monthlyCallsChart.data.datasets = [{
-                label: 'Llamamientos por Mes',
+                label: 'Llamamientos por Mes (General)',
                 data: Object.values(LLAMAMIENTOS_MENSUALES),
                 backgroundColor: coloresBarras,
                 borderRadius: 4
