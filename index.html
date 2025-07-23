@@ -91,18 +91,22 @@
     </main>
 
     <script>
-        // --- DATOS BASE ---
+        // --- DATOS BASE CON PONDERACIÓN DE DEMANDA ---
+        // El demandFactor ajusta la ponderación de cada provincia. 
+        // > 1: Más demanda/velocidad (basado en aumento de plantilla o tradición de alta rotación).
+        // < 1: Menos demanda/velocidad (basado en recortes de plantilla o alta competencia de veteranos).
         const PROVINCIAS = {
-            'Almería': { poblacion: 753000, checked: true },
-            'Cádiz': { poblacion: 1250000, checked: true },
-            'Córdoba': { poblacion: 775000, checked: true },
-            'Granada': { poblacion: 930000, checked: true },
-            'Huelva': { poblacion: 530000, checked: true },
-            'Jaén': { poblacion: 620000, checked: true },
-            'Málaga': { poblacion: 1750000, checked: true },
-            'Sevilla': { poblacion: 1960000, checked: true }
+            'Almería': { poblacion: 753000, demandFactor: 1.2, checked: true },
+            'Málaga': { poblacion: 1750000, demandFactor: 1.2, checked: true },
+            'Granada': { poblacion: 930000, demandFactor: 0.95, checked: true },
+            'Huelva': { poblacion: 530000, demandFactor: 0.9, checked: true },
+            'Sevilla': { poblacion: 1960000, demandFactor: 0.85, checked: true },
+            'Jaén': { poblacion: 620000, demandFactor: 0.8, checked: true },
+            'Córdoba': { poblacion: 775000, demandFactor: 0.8, checked: true },
+            'Cádiz': { poblacion: 1250000, demandFactor: 0.75, checked: true }
         };
-        const TOTAL_POBLACION = Object.values(PROVINCIAS).reduce((sum, p) => sum + p.poblacion, 0);
+
+        const TOTAL_WEIGHTED_DEMAND = Object.values(PROVINCIAS).reduce((sum, p) => sum + (p.poblacion * p.demandFactor), 0);
 
         const LLAMAMIENTOS_MENSUALES = {
             'Sept': 1500, 'Oct': 400, 'Nov': 250, 'Dic': 15,
@@ -249,7 +253,9 @@
                 return;
             }
 
-            const factorProvincial = provinciasSeleccionadas.reduce((sum, prov) => sum + PROVINCIAS[prov].poblacion, 0) / TOTAL_POBLACION;
+            const userWeightedDemand = provinciasSeleccionadas.reduce((sum, prov) => sum + (PROVINCIAS[prov].poblacion * PROVINCIAS[prov].demandFactor), 0);
+            const factorProvincial = userWeightedDemand / TOTAL_WEIGHTED_DEMAND;
+            
             const resultado = calcularPronostico(posicion, vacantes, factorProvincial);
             actualizarUI(resultado, posicion - vacantes, factorProvincial);
         });
