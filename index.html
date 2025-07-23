@@ -3,388 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pronóstico Bolsa Primaria Andalucía 2025-2026</title>
+    <title>Pronóstico Interactivo Bolsa Primaria Andalucía 2025-26</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- 
-    Narrative Plan:
-    1. Introduction: Minimalist header with title.
-    2. Interactive Simulator: The core of the page, allowing users to input their data.
-    3. Results Display: A clear, highlighted section for the personalized forecast result.
-    4. Data Visualization: Two charts (cumulative progress and monthly call-ups) to visually represent the forecast.
-    5. Conclusion/Disclaimer: A brief disclaimer at the end.
-
-    Visualization Choices:
-    1. Data Point: Cumulative progress of the job list over the school year.
-       - Goal: Change.
-       - Chosen Visualization: Line Chart (Chart.js).
-       - Justification: Best way to show a continuous trend and compare a personalized trajectory against a baseline. Implemented via Canvas (NO SVG).
-    2. Data Point: Volume of call-ups (substitutions) per month.
-       - Goal: Compare.
-       - Chosen Visualization: Bar Chart (Chart.js).
-       - Justification: Ideal for comparing magnitudes of discrete categories (months) and highlighting the user's estimated month. Implemented via Canvas (NO SVG).
-    
-    Color Palette Selection:
-    - Chosen Palette Name: Professional Greens.
-    - Justification: A clean, professional, and thematic color scheme requested by the user. HEX Codes: #E8F5E9, #4CAF50, #388E3C, #1B5E20.
-
-    Technology Confirmation:
-    - NEITHER Mermaid JS NOR SVG were used in this file. All visualizations are rendered on <canvas> elements by Chart.js or implemented with structured HTML and Tailwind CSS.
-    -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #F1F8F1; /* Lightest Green */
+            font-family: 'Inter', sans-serif;
         }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 320px;
-            max-height: 400px;
+            height: 300px;
         }
         @media (min-width: 768px) {
             .chart-container {
-                height: 400px;
+                height: 350px;
             }
         }
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #A5D6A7; /* Light Green Border */
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background-color: #fff;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #4CAF50; /* Primary Green */
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.25);
-        }
-        .btn-primary {
-            background-color: #4CAF50; /* Primary Green */
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-        .btn-primary:hover {
-            background-color: #388E3C; /* Darker Green */
-        }
-        .card {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .stat-card {
-            background: linear-gradient(135deg, #4CAF50, #1B5E20);
-            color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            text-align: center;
-        }
-        .province-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-        }
-         @media (min-width: 640px) {
-            .province-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
+        .result-card {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
         }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="bg-[#F1F8E9] text-[#333]">
 
-    <main class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-[#1B5E20] mb-2">Pronóstico Bolsa de Primaria</h1>
-            <h2 class="text-3xl md:text-4xl font-bold text-[#388E3C] mb-4">Andalucía 2025-2026</h2>
+    <main class="container mx-auto p-4 md:p-8 max-w-6xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-[#1B5E20] mb-2">Pronóstico Personalizado para Aspirantes</h1>
+            <p class="text-md text-[#388E3C]">Bolsa de Educación Primaria - Andalucía 2025/26</p>
         </header>
 
-        <section id="simulator" class="card lg:col-span-2 mb-12 max-w-4xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div>
-                    <h3 class="text-2xl font-bold text-[#1B5E20] mb-4">Calcula tu Pronóstico</h3>
-                    <p class="text-gray-600 mb-6">Introduce tus datos y selecciona las provincias para obtener tu estimación personalizada.</p>
-                    <form id="forecast-form">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label for="vacancies" class="block font-medium text-gray-700 mb-1">Vacantes de agosto:</label>
-                                <input type="number" id="vacancies" name="vacancies" class="form-input" placeholder="Ej: 950" required>
-                            </div>
-                            <div>
-                                <label for="position" class="block font-medium text-gray-700 mb-1">Tu posición en bolsa:</label>
-                                <input type="number" id="position" name="position" class="form-input" placeholder="Ej: 3500" required>
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block font-medium text-gray-700 mb-2">Selecciona tus provincias:</label>
-                            <div id="provinces-container" class="province-grid">
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="almeria" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Almería</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="cadiz" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Cádiz</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="cordoba" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Córdoba</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="granada" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Granada</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="huelva" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Huelva</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="jaen" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Jaén</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="malaga" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Málaga</span></label>
-                                <label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" name="province" value="sevilla" class="h-4 w-4 rounded border-gray-300 text-[#4CAF50] focus:ring-[#388E3C]"><span>Sevilla</span></label>
-                            </div>
-                             <p id="province-error" class="text-red-500 text-sm mt-1 hidden">Debes seleccionar al menos una provincia.</p>
-                        </div>
-                        <button type="submit" class="btn-primary">Generar Previsión</button>
-                    </form>
+        <!-- Bloque de Entradas del Usuario -->
+        <div class="bg-white rounded-2xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold text-[#1B5E20] mb-4">Introduce tus datos para la simulación</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Columna 1: Datos Numéricos -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="bolsaPos" class="block text-sm font-medium text-gray-700">Tu posición en bolsa</label>
+                        <input type="number" id="bolsaPos" value="3500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2">
+                    </div>
+                    <div>
+                        <label for="vacantesAgosto" class="block text-sm font-medium text-gray-700">Vacantes informatizadas (Agosto)</label>
+                        <input type="number" id="vacantesAgosto" value="850" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2">
+                    </div>
                 </div>
-                <div id="result-container" class="hidden">
-                     <div class="stat-card">
-                        <h4 class="text-xl font-semibold mb-2">Fecha Estimada de Llamamiento:</h4>
-                        <p id="result-text" class="text-3xl lg:text-4xl font-bold">-</p>
-                        <p class="text-sm opacity-80 mt-4">Esta es una estimación basada en el modelo predictivo.</p>
+                <!-- Columna 2 y 3: Provincias -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Provincias seleccionadas</label>
+                    <div id="provinciasContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        <!-- Checkboxes se insertarán aquí -->
                     </div>
                 </div>
             </div>
-        </section>
+            <div class="mt-6 text-center">
+                <button id="calculateBtn" class="bg-[#4CAF50] hover:bg-[#388E3C] text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Calcular Pronóstico
+                </button>
+            </div>
+        </div>
 
-        <section id="charts" class="mb-12">
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-center text-[#1B5E20]">Tu Previsión vs. Avance de la Bolsa</h3>
+        <!-- Bloque de Resultados -->
+        <div id="resultsBlock" class="hidden">
+             <div id="resultText" class="text-center mb-8 p-6 rounded-2xl shadow-lg text-white result-card">
+                <p class="text-lg">Tu llamada se estima para la:</p>
+                <p id="prediction" class="text-3xl font-bold mt-1"></p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-2xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-[#1B5E20] mb-2 text-center">Avance Acumulado de la Bolsa</h3>
                     <div class="chart-container">
                         <canvas id="cumulativeChart"></canvas>
                     </div>
-                    <p class="text-center mt-4 text-gray-600 text-sm">El punto donde la línea de avance (continua) cruza tu posición (puntos) es tu fecha estimada.</p>
                 </div>
-                <div class="card">
-                    <h3 class="text-2xl font-bold mb-4 text-center text-[#1B5E20]">Ritmo de Llamamientos por Mes</h3>
-                     <div class="chart-container">
-                        <canvas id="monthlyChart"></canvas>
+                <div class="bg-white rounded-2xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-[#1B5E20] mb-2 text-center">Llamamientos Estimados por Mes</h3>
+                    <div class="chart-container">
+                        <canvas id="monthlyCallsChart"></canvas>
                     </div>
-                    <p class="text-center mt-4 text-gray-600 text-sm">Este gráfico explica *por qué* avanza la bolsa. Meses con barras altas tienen más llamamientos.</p>
                 </div>
             </div>
-        </section>
-
-        <footer class="text-center text-gray-500 text-sm mt-8">
-            <p><strong>Aviso:</strong> Esta herramienta ofrece un pronóstico basado en un modelo estadístico y datos públicos. Los resultados son una estimación y no garantizan una fecha de llamamiento real.</p>
-        </footer>
+        </div>
 
     </main>
 
     <script>
-        const FORECAST_DATA = {
-            months: ["Sep", "Oct", "Nov", "Dic", "Ene", "Feb", "Mar", "Abr", "May", "Jun"],
-            substitutions: [1375, 330, 185, 15, 245, 90, 105, 65, 60, 10],
-            monthWeeks: [4, 4, 4, 2, 4, 4, 3, 4, 4, 2]
+        // --- DATOS BASE ---
+        const PROVINCIAS = {
+            'Almería': { poblacion: 753000, checked: true },
+            'Cádiz': { poblacion: 1250000, checked: true },
+            'Córdoba': { poblacion: 775000, checked: true },
+            'Granada': { poblacion: 930000, checked: true },
+            'Huelva': { poblacion: 530000, checked: true },
+            'Jaén': { poblacion: 620000, checked: true },
+            'Málaga': { poblacion: 1750000, checked: true },
+            'Sevilla': { poblacion: 1960000, checked: true }
         };
+        const TOTAL_POBLACION = Object.values(PROVINCIAS).reduce((sum, p) => sum + p.poblacion, 0);
 
-        const PROVINCE_WEIGHTS = {
-            almeria: 2, granada: 2, huelva: 2, 
-            cadiz: 3, malaga: 3, sevilla: 3, 
-            cordoba: 1, jaen: 1
+        const LLAMAMIENTOS_MENSUALES = {
+            'Sept': 1500, 'Oct': 400, 'Nov': 250, 'Dic': 15,
+            'Ene': 250, 'Feb': 125, 'Mar': 125, 'Abr': 125,
+            'May': 85, 'Jun': 8
         };
+        const MESES = Object.keys(LLAMAMIENTOS_MENSUALES);
 
-        const CHART_COLORS = {
-            primary: '#4CAF50',
-            primaryLight: 'rgba(76, 175, 80, 0.2)',
-            secondary: '#1B5E20',
-            grid: '#C8E6C9'
-        };
-
-        let cumulativeChartInstance = null;
-        let monthlyChartInstance = null;
-        
-        const tooltipTitleCallback = (tooltipItems) => {
-            const item = tooltipItems[0];
-            let label = item.chart.data.labels[item.dataIndex];
-            if (Array.isArray(label)) return label.join(' ');
-            return label;
-        };
-        
-        function renderCumulativeChart(generalData, personalData = []) {
-            const ctx = document.getElementById('cumulativeChart').getContext('2d');
-            const chartData = {
-                labels: ["Ago", ...FORECAST_DATA.months],
-                datasets: [{
-                    label: 'Avance de la Bolsa',
-                    data: generalData,
-                    borderColor: CHART_COLORS.primary,
-                    backgroundColor: CHART_COLORS.primaryLight,
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 3
-                }, {
-                    label: 'Tu Posición',
-                    data: personalData,
-                    borderColor: CHART_COLORS.secondary,
-                    borderDash: [5, 5],
-                    fill: false,
-                    tension: 0,
-                    pointRadius: 0 // No points on the straight line
-                }]
-            };
-
-            if (cumulativeChartInstance) {
-                cumulativeChartInstance.data = chartData;
-                cumulativeChartInstance.update();
-            } else {
-                cumulativeChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: chartData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Posición en Bolsa' }, grid: { color: CHART_COLORS.grid } },
-                            x: { grid: { display: false } }
-                        },
-                        plugins: { legend: { position: 'top' }, tooltip: { callbacks: { title: tooltipTitleCallback } } }
-                    }
-                });
-            }
-        }
-
-        function renderMonthlyChart(monthlyData, highlightedIndex = -1) {
-            const ctx = document.getElementById('monthlyChart').getContext('2d');
-            const backgroundColors = monthlyData.map((_, index) => 
-                index === highlightedIndex ? CHART_COLORS.secondary : CHART_COLORS.primary
-            );
-
-            const chartData = {
-                labels: FORECAST_DATA.months,
-                datasets: [{
-                    label: 'Nº de Sustituciones',
-                    data: monthlyData,
-                    backgroundColor: backgroundColors,
-                    borderRadius: 5
-                }]
-            };
-
-            if (monthlyChartInstance) {
-                monthlyChartInstance.data = chartData;
-                monthlyChartInstance.update();
-            } else {
-                monthlyChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: chartData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                             y: { beginAtZero: true, title: { display: true, text: 'Nº de Llamamientos' }, grid: { color: CHART_COLORS.grid } },
-                            x: { grid: { display: false } }
-                        },
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { title: tooltipTitleCallback } } }
-                    }
-                });
-            }
-        }
-
-        document.getElementById('forecast-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const position = parseInt(document.getElementById('position').value);
-            const summerVacancies = parseInt(document.getElementById('vacancies').value);
-            const selectedProvinces = Array.from(document.querySelectorAll('input[name="province"]:checked')).map(cb => cb.value);
-            const resultContainer = document.getElementById('result-container');
-            const resultText = document.getElementById('result-text');
-            const provinceError = document.getElementById('province-error');
-
-            if (selectedProvinces.length === 0) {
-                provinceError.classList.remove('hidden');
-                return;
-            }
-            provinceError.classList.add('hidden');
-
-            if (isNaN(position) || isNaN(summerVacancies)) {
-                resultText.textContent = "Datos no válidos.";
-                resultContainer.classList.remove('hidden');
-                return;
-            }
-
-            let provincePoints = selectedProvinces.reduce((acc, p) => acc + (PROVINCE_WEIGHTS[p] || 0), 0);
-            
-            let provinceModifier = 1.0;
-            if (provincePoints <= 2) provinceModifier = 0.80;
-            else if (provincePoints <= 5) provinceModifier = 0.95;
-            else if (provincePoints <= 9) provinceModifier = 1.05;
-            else if (provincePoints <= 14) provinceModifier = 1.15;
-            else if (provincePoints >= 15) provinceModifier = 1.30;
-            
-            if (position <= summerVacancies * provinceModifier) {
-                 resultText.innerHTML = `Agosto / Sept. <span class="text-xl block">(Vacante inicial)</span>`;
-                 resultContainer.classList.remove('hidden');
-                 updateChartsForUser(position, -1, provinceModifier, summerVacancies);
-                 return;
-            }
-
-            let currentTotal = summerVacancies * provinceModifier;
-            let estimatedMonthIndex = -1;
-            let estimatedWeek = -1;
-
-            for (let i = 0; i < FORECAST_DATA.substitutions.length; i++) {
-                const monthlyCalls = FORECAST_DATA.substitutions[i] * provinceModifier;
-                if (position <= currentTotal + monthlyCalls) {
-                    estimatedMonthIndex = i;
-                    const positionIntoMonth = position - currentTotal;
-                    const callsPerWeek = monthlyCalls / FORECAST_DATA.monthWeeks[i];
-                    estimatedWeek = Math.ceil(positionIntoMonth / callsPerWeek);
-                    if(estimatedWeek > FORECAST_DATA.monthWeeks[i]) estimatedWeek = FORECAST_DATA.monthWeeks[i];
-                    break;
-                }
-                currentTotal += monthlyCalls;
-            }
-
-            if (estimatedMonthIndex !== -1) {
-                const monthName = FORECAST_DATA.months[estimatedMonthIndex];
-                const weekText = `Semana ${estimatedWeek}`;
-                resultText.innerHTML = `${monthName}, ${weekText}`;
-            } else {
-                resultText.textContent = 'Fuera de previsión';
-            }
-            
-            resultContainer.classList.remove('hidden');
-            updateChartsForUser(position, estimatedMonthIndex, provinceModifier, summerVacancies);
+        // --- INICIALIZACIÓN DE LA UI ---
+        const provinciasContainer = document.getElementById('provinciasContainer');
+        Object.keys(PROVINCIAS).forEach(nombre => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center';
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = `prov-${nombre}`;
+            input.name = nombre;
+            input.checked = PROVINCIAS[nombre].checked;
+            input.className = 'h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500';
+            const label = document.createElement('label');
+            label.htmlFor = `prov-${nombre}`;
+            label.textContent = nombre;
+            label.className = 'ml-2 block text-sm text-gray-900';
+            div.appendChild(input);
+            div.appendChild(label);
+            provinciasContainer.appendChild(div);
         });
-        
-        function updateChartsForUser(userPosition, estimatedMonthIndex, provinceModifier, summerVacancies) {
-            // This is the personalized forecast line (the general progression)
-            let modifiedCumulativeData = [];
-            let tempTotal = summerVacancies * provinceModifier;
-            modifiedCumulativeData.push(tempTotal);
-            FORECAST_DATA.substitutions.forEach(sub => {
-                tempTotal += sub * provinceModifier;
-                modifiedCumulativeData.push(tempTotal);
+
+        // --- LÓGICA DE GRÁFICOS ---
+        let cumulativeChart, monthlyCallsChart;
+
+        function createCharts() {
+            const cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
+            cumulativeChart = new Chart(cumulativeCtx, {
+                type: 'line',
+                data: { labels: MESES, datasets: [] },
+                options: getChartOptions('Posición en bolsa')
             });
 
-            // This is the user's position line (a straight horizontal line)
-            const personalData = new Array(FORECAST_DATA.months.length + 1).fill(userPosition);
-            
-            renderCumulativeChart(modifiedCumulativeData, personalData);
-            renderMonthlyChart(FORECAST_DATA.substitutions, estimatedMonthIndex);
+            const monthlyCtx = document.getElementById('monthlyCallsChart').getContext('2d');
+            monthlyCallsChart = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: { labels: MESES, datasets: [] },
+                options: getChartOptions('Nº de llamamientos')
+            });
         }
 
-        window.onload = () => {
-            const defaultSummerVacancies = 850;
-            let initialCumulative = [];
-            let tempTotal = defaultSummerVacancies;
-            initialCumulative.push(tempTotal);
-            FORECAST_DATA.substitutions.forEach(sub => {
-                tempTotal += sub;
-                initialCumulative.push(tempTotal);
-            });
+        function getChartOptions(yAxisTitle) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'bottom' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: yAxisTitle, color: '#388E3C' }
+                    },
+                    x: { ticks: { color: '#333' } }
+                }
+            };
+        }
 
-            renderCumulativeChart(initialCumulative);
-            renderMonthlyChart(FORECAST_DATA.substitutions);
-        };
+        // --- LÓGICA DE CÁLCULO ---
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const posicion = parseInt(document.getElementById('bolsaPos').value);
+            const vacantes = parseInt(document.getElementById('vacantesAgosto').value);
+            
+            const provinciasSeleccionadas = Array.from(document.querySelectorAll('#provinciasContainer input:checked')).map(el => el.name);
+
+            if (provinciasSeleccionadas.length === 0) {
+                alert("Por favor, selecciona al menos una provincia.");
+                return;
+            }
+
+            const factorProvincial = provinciasSeleccionadas.reduce((sum, prov) => sum + PROVINCIAS[prov].poblacion, 0) / TOTAL_POBLACION;
+            const resultado = calcularPronostico(posicion, vacantes, factorProvincial);
+            actualizarUI(resultado, posicion - vacantes);
+        });
+
+        function calcularPronostico(posicion, vacantes, factorProvincial) {
+            const posicionEfectiva = posicion - vacantes;
+            if (posicionEfectiva <= 0) {
+                return { mes: 'Agosto', semana: 'Adjudicación de Verano', mesIndex: -1 };
+            }
+
+            let llamamientosAcumulados = 0;
+            for (let i = 0; i < MESES.length; i++) {
+                const mes = MESES[i];
+                const llamamientosMesPonderados = LLAMAMIENTOS_MENSUALES[mes] * factorProvincial;
+                
+                if (llamamientosAcumulados + llamamientosMesPonderados >= posicionEfectiva) {
+                    const restante = posicionEfectiva - llamamientosAcumulados;
+                    const proporcionMes = restante / llamamientosMesPonderados;
+                    const semana = Math.ceil(proporcionMes * 4);
+                    return { mes, semana: `Semana ${semana}`, mesIndex: i };
+                }
+                llamamientosAcumulados += llamamientosMesPonderados;
+            }
+
+            return { mes: 'Curso Siguiente', semana: 'No se estima llamada este curso', mesIndex: MESES.length };
+        }
+
+        // --- ACTUALIZACIÓN DE LA UI ---
+        function actualizarUI(resultado, posicionEfectiva) {
+            document.getElementById('resultsBlock').classList.remove('hidden');
+            
+            if (resultado.mesIndex === -1) {
+                document.getElementById('prediction').textContent = '¡Adjudicación en Verano!';
+            } else if (resultado.mesIndex === MESES.length) {
+                document.getElementById('prediction').textContent = 'No se estima llamada este curso';
+            } else {
+                document.getElementById('prediction').textContent = `${resultado.semana} de ${resultado.mes}`;
+            }
+
+            if (!cumulativeChart) createCharts();
+            
+            // Gráfico Acumulado
+            const avanceGeneralAcumulado = MESES.reduce((acc, mes) => {
+                acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + LLAMAMIENTOS_MENSUALES[mes]);
+                return acc;
+            }, []);
+
+            const posicionUsuarioData = new Array(MESES.length).fill(posicionEfectiva > 0 ? posicionEfectiva : null);
+
+            cumulativeChart.data.datasets = [
+                {
+                    label: 'Avance Estimado de la Bolsa',
+                    data: avanceGeneralAcumulado,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    fill: true,
+                    tension: 0.2
+                },
+                {
+                    label: 'Tu Posición (tras vacantes)',
+                    data: posicionUsuarioData,
+                    borderColor: '#1B5E20',
+                    borderDash: [5, 5],
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    tension: 0.1
+                }
+            ];
+            cumulativeChart.update();
+
+            // Gráfico de Llamamientos Mensuales
+            const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
+
+            monthlyCallsChart.data.datasets = [{
+                label: 'Llamamientos por Mes',
+                data: Object.values(LLAMAMIENTOS_MENSUALES),
+                backgroundColor: coloresBarras,
+                borderRadius: 4
+            }];
+            monthlyCallsChart.update();
+        }
+
     </script>
 </body>
 </html>
