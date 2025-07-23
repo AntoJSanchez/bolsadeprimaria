@@ -45,7 +45,7 @@
                 <div class="space-y-4">
                     <div>
                         <label for="bolsaPos" class="block text-sm font-medium text-gray-700">Tu posición en bolsa</label>
-                        <input type="number" id="bolsaPos" value="3500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2">
+                        <input type="number" id="bolsaPos" value="1200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm p-2">
                     </div>
                     <div>
                         <label for="vacantesAgosto" class="block text-sm font-medium text-gray-700">Vacantes informatizadas (Agosto)</label>
@@ -60,6 +60,7 @@
                     </div>
                 </div>
             </div>
+            <div id="errorBlock" class="hidden text-center mt-4 p-3 rounded-lg bg-red-100 text-red-700"></div>
             <div class="mt-6 text-center">
                 <button id="calculateBtn" class="bg-[#4CAF50] hover:bg-[#388E3C] text-white font-bold py-2 px-6 rounded-lg transition-colors">
                     Calcular Pronóstico
@@ -96,14 +97,14 @@
         // > 1: Más demanda/velocidad (basado en aumento de plantilla o tradición de alta rotación).
         // < 1: Menos demanda/velocidad (basado en recortes de plantilla o alta competencia de veteranos).
         const PROVINCIAS = {
-            'Almería': { poblacion: 753000, demandFactor: 1.2, checked: true },
-            'Málaga': { poblacion: 1750000, demandFactor: 1.2, checked: true },
+            'Almería': { poblacion: 753000, demandFactor: 1.2, checked: false },
+            'Málaga': { poblacion: 1750000, demandFactor: 1.2, checked: false },
             'Granada': { poblacion: 930000, demandFactor: 0.95, checked: true },
-            'Huelva': { poblacion: 530000, demandFactor: 0.9, checked: true },
-            'Sevilla': { poblacion: 1960000, demandFactor: 0.85, checked: true },
-            'Jaén': { poblacion: 620000, demandFactor: 0.8, checked: true },
-            'Córdoba': { poblacion: 775000, demandFactor: 0.8, checked: true },
-            'Cádiz': { poblacion: 1250000, demandFactor: 0.75, checked: true }
+            'Huelva': { poblacion: 530000, demandFactor: 0.9, checked: false },
+            'Sevilla': { poblacion: 1960000, demandFactor: 0.85, checked: false },
+            'Jaén': { poblacion: 620000, demandFactor: 0.8, checked: false },
+            'Córdoba': { poblacion: 775000, demandFactor: 0.8, checked: false },
+            'Cádiz': { poblacion: 1250000, demandFactor: 0.75, checked: false }
         };
 
         const TOTAL_WEIGHTED_DEMAND = Object.values(PROVINCIAS).reduce((sum, p) => sum + (p.poblacion * p.demandFactor), 0);
@@ -187,26 +188,6 @@
             { mes: 'Jun', dia: 'Jueves 4', incorporacion: 'Miércoles 10 Jun' },
         ];
 
-        // --- INICIALIZACIÓN DE LA UI ---
-        const provinciasContainer = document.getElementById('provinciasContainer');
-        Object.keys(PROVINCIAS).forEach(nombre => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center';
-            const input = document.createElement('input');
-            input.type = 'checkbox';
-            input.id = `prov-${nombre}`;
-            input.name = nombre;
-            input.checked = PROVINCIAS[nombre].checked;
-            input.className = 'h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500';
-            const label = document.createElement('label');
-            label.htmlFor = `prov-${nombre}`;
-            label.textContent = nombre;
-            label.className = 'ml-2 block text-sm text-gray-900';
-            div.appendChild(input);
-            div.appendChild(label);
-            provinciasContainer.appendChild(div);
-        });
-
         // --- LÓGICA DE GRÁFICOS ---
         let cumulativeChart, monthlyCallsChart;
 
@@ -241,27 +222,7 @@
             };
         }
 
-        // --- LÓGICA DE CÁLCULO ---
-        document.getElementById('calculateBtn').addEventListener('click', () => {
-            const posicion = parseInt(document.getElementById('bolsaPos').value);
-            const vacantes = parseInt(document.getElementById('vacantesAgosto').value);
-            
-            const provinciasSeleccionadas = Array.from(document.querySelectorAll('#provinciasContainer input:checked')).map(el => el.name);
-
-            if (provinciasSeleccionadas.length === 0) {
-                alert("Por favor, selecciona al menos una provincia.");
-                return;
-            }
-
-            const userWeightedDemand = provinciasSeleccionadas.reduce((sum, prov) => sum + (PROVINCIAS[prov].poblacion * PROVINCIAS[prov].demandFactor), 0);
-            const factorProvincial = userWeightedDemand / TOTAL_WEIGHTED_DEMAND;
-            
-            const resultado = calcularPronostico(posicion, vacantes, factorProvincial);
-            actualizarUI(resultado, posicion - vacantes, factorProvincial);
-        });
-
-        function calcularPronostico(posicion, vacantes, factorProvincial) {
-            const posicionEfectiva = posicion - vacantes;
+        function calcularPronostico(posicionEfectiva, factorProvincial) {
             if (posicionEfectiva <= 0) {
                 return { tipo: 'verano', mesIndex: -1 };
             }
@@ -278,7 +239,7 @@
                     const callsInMonth = CALENDARIO_SIPRI.filter(c => c.mes === mes);
                     if (callsInMonth.length > 0) {
                         const callIndex = Math.min(Math.floor(proporcionMes * callsInMonth.length), callsInMonth.length - 1);
-                        const semana = Math.ceil(proporcionMes * 4);
+                        const semana = Math.max(1, Math.ceil(proporcionMes * 4));
                         return { tipo: 'especifico', call: callsInMonth[callIndex], semana: `Semana ${semana}`, mes: mes, mesIndex: i };
                     }
                 }
@@ -288,8 +249,7 @@
             return { tipo: 'siguiente_curso', mesIndex: MESES.length };
         }
 
-        // --- ACTUALIZACIÓN DE LA UI ---
-        function actualizarUI(resultado, posicionEfectiva, factorProvincial) {
+        function actualizarUI(resultado, posicionEfectiva, factorProvincial, competenciaReal) {
             document.getElementById('resultsBlock').classList.remove('hidden');
             
             const resultTextEl = document.getElementById('resultText');
@@ -298,7 +258,7 @@
                     resultTextEl.innerHTML = '<p class="text-4xl font-bold">¡Adjudicación estimada en Verano!</p>';
                     break;
                 case 'siguiente_curso':
-                    resultTextEl.innerHTML = '<p class="text-3xl font-bold">No se estima llamada este curso.</p>';
+                    resultTextEl.innerHTML = `<p class="text-3xl font-bold">No se estima llamada este curso.</p><p class="text-sm mt-2">Tu competencia real estimada (${Math.round(competenciaReal)} personas) supera los llamamientos previstos para tus provincias.</p>`;
                     break;
                 case 'especifico':
                     const call = resultado.call;
@@ -308,24 +268,24 @@
                             <p>Llamamiento estimado: <strong>${call.dia}</strong></p>
                             <p>Incorporación prevista: <strong>${call.incorporacion}</strong></p>
                         </div>
+                        <p class="text-xs mt-3 opacity-80">Cálculo basado en una competencia real estimada de ${Math.round(competenciaReal)} personas para tus provincias.</p>
                     `;
                     break;
             }
 
             if (!cumulativeChart) createCharts();
             
-            // Gráfico Acumulado
             const avancePersonalizadoAcumulado = MESES.reduce((acc, mes) => {
                 const avanceMes = LLAMAMIENTOS_MENSUALES[mes] * factorProvincial;
                 acc.push((acc.length > 0 ? acc[acc.length - 1] : 0) + avanceMes);
                 return acc;
             }, []);
 
-            const posicionUsuarioData = new Array(MESES.length).fill(posicionEfectiva > 0 ? posicionEfectiva : null);
+            const posicionUsuarioData = new Array(MESES.length).fill(competenciaReal > 0 ? competenciaReal : null);
 
             cumulativeChart.data.datasets = [
                 {
-                    label: 'Tu Avance Estimado (según provincias)',
+                    label: 'Avance Estimado en tus Provincias',
                     data: avancePersonalizadoAcumulado,
                     borderColor: '#4CAF50',
                     backgroundColor: 'rgba(76, 175, 80, 0.2)',
@@ -333,7 +293,7 @@
                     tension: 0.2
                 },
                 {
-                    label: 'Tu Posición (tras vacantes)',
+                    label: 'Tu Competencia Real Estimada',
                     data: posicionUsuarioData,
                     borderColor: '#1B5E20',
                     borderDash: [5, 5],
@@ -344,7 +304,6 @@
             ];
             cumulativeChart.update();
 
-            // Gráfico de Llamamientos Mensuales
             const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
 
             monthlyCallsChart.data.datasets = [{
@@ -356,6 +315,71 @@
             monthlyCallsChart.update();
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            const provinciasContainer = document.getElementById('provinciasContainer');
+            Object.keys(PROVINCIAS).forEach(nombre => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = `prov-${nombre}`;
+                input.name = nombre;
+                input.checked = PROVINCIAS[nombre].checked;
+                input.className = 'h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500';
+                const label = document.createElement('label');
+                label.htmlFor = `prov-${nombre}`;
+                label.textContent = nombre;
+                label.className = 'ml-2 block text-sm text-gray-900';
+                div.appendChild(input);
+                div.appendChild(label);
+                provinciasContainer.appendChild(div);
+            });
+
+            document.getElementById('calculateBtn').addEventListener('click', () => {
+                const errorBlock = document.getElementById('errorBlock');
+                errorBlock.classList.add('hidden');
+
+                const posicion = parseInt(document.getElementById('bolsaPos').value);
+                const vacantes = parseInt(document.getElementById('vacantesAgosto').value);
+                
+                const provinciasSeleccionadas = Array.from(document.querySelectorAll('#provinciasContainer input:checked')).map(el => el.name);
+
+                if (provinciasSeleccionadas.length === 0) {
+                    errorBlock.textContent = "Por favor, selecciona al menos una provincia.";
+                    errorBlock.classList.remove('hidden');
+                    return;
+                }
+
+                const competidoresDirectos = Math.max(0, posicion - vacantes);
+                
+                const pesoProvinciasNoSeleccionadas = Object.keys(PROVINCIAS)
+                    .filter(p => !provinciasSeleccionadas.includes(p))
+                    .reduce((sum, p) => sum + (PROVINCIAS[p].poblacion * PROVINCIAS[p].demandFactor), 0);
+                
+                const ratioFuga = pesoProvinciasNoSeleccionadas / TOTAL_WEIGHTED_DEMAND;
+                const competidoresFugados = competidoresDirectos * ratioFuga;
+                const competenciaReal = competidoresDirectos - competidoresFugados;
+
+                const numProvincias = provinciasSeleccionadas.length;
+                let selectivityModifier = 1.0;
+                if (numProvincias <= 2) {
+                    selectivityModifier = 0.85; 
+                } else if (numProvincias >= 6) {
+                    selectivityModifier = 1.15;
+                }
+
+                const userWeightedDemand = provinciasSeleccionadas.reduce((sum, prov) => sum + (PROVINCIAS[prov].poblacion * PROVINCIAS[prov].demandFactor), 0);
+                let factorProvincial = userWeightedDemand / TOTAL_WEIGHTED_DEMAND;
+                
+                factorProvincial *= selectivityModifier;
+                
+                const resultado = calcularPronostico(competenciaReal, factorProvincial);
+                actualizarUI(resultado, posicion - vacantes, factorProvincial, competenciaReal);
+            });
+            
+            // Simular un clic al cargar la página para mostrar el resultado inicial
+            document.getElementById('calculateBtn').click();
+        });
     </script>
 </body>
 </html>
