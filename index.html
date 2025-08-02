@@ -37,7 +37,6 @@
             <p class="text-md text-[#388E3C]">Bolsa de Educación Primaria - Andalucía 2025/26</p>
         </header>
 
-        <!-- Bloque de Entradas del Usuario -->
         <div class="bg-white rounded-2xl shadow-md p-6 mb-8">
             <h2 class="text-xl font-bold text-[#1B5E20] mb-4">Introduce tus datos para la simulación</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -61,11 +60,9 @@
             </div>
         </div>
 
-        <!-- Bloque de Resultados -->
         <div id="resultsBlock" class="hidden">
              <div id="resultText" class="text-center mb-8 p-6 rounded-2xl shadow-lg text-white result-card">
-                <!-- El resultado se inyectará aquí -->
-            </div>
+                 </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white rounded-2xl shadow-md p-6">
                     <h3 class="text-lg font-bold text-[#1B5E20] mb-2 text-center">Avance Acumulado de la Bolsa</h3>
@@ -258,10 +255,11 @@
                 }, []);
 
                 const posicionUsuarioData = new Array(MESES.length).fill(posicionEfectiva > 0 ? posicionEfectiva : null);
-
-                cumulativeChart.data.datasets = [
+                
+                // *** INICIO DE LA CORRECCIÓN ***
+                const datasets = [
                     {
-                        label: 'Avance General Estimado de la Bolsa',
+                        label: 'Avance General Estimado',
                         data: avanceGeneralAcumulado,
                         borderColor: '#4CAF50',
                         backgroundColor: 'rgba(76, 175, 80, 0.2)',
@@ -278,6 +276,27 @@
                         tension: 0.1
                     }
                 ];
+
+                // Añadir un punto en la intersección si aplica
+                if (resultado.tipo === 'especifico' && resultado.mesIndex !== -1) {
+                    const intersectionData = new Array(MESES.length).fill(null);
+                    intersectionData[resultado.mesIndex] = posicionEfectiva;
+                    
+                    datasets.push({
+                        label: 'Fecha Estimada de Llamada',
+                        data: intersectionData,
+                        borderColor: '#C62828',
+                        backgroundColor: '#E53935',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        type: 'scatter', // Se puede especificar un tipo diferente para un dataset
+                        showLine: false
+                    });
+                }
+                
+                cumulativeChart.data.datasets = datasets;
+                // *** FIN DE LA CORRECCIÓN ***
+                
                 cumulativeChart.update();
 
                 const coloresBarras = MESES.map((_, index) => index === resultado.mesIndex ? '#1B5E20' : '#A5D6A7');
@@ -300,6 +319,7 @@
                 actualizarUI(resultado, posicionEfectiva);
             });
             
+            // Simulación inicial al cargar la página
             document.getElementById('calculateBtn').click();
         });
     </script>
